@@ -302,7 +302,7 @@ void initialize_node(){
 }
 
 void send_i2c_message(double d1, double d2){
-    Serial.println(")
+    Serial.println("send i2c message");
     // set the other nodes average
     Wire.beginTransmission(_i2c_slave_address);
     dtostrf(d1, 3, 2, _chars);
