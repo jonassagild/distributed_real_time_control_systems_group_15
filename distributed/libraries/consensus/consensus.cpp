@@ -310,11 +310,11 @@ void initialize_node(){
 
 void send_i2c_message(double d1, double d2){
     //TEST
-//    Serial.println("send i2c message");
-//    Serial.print("_d_1 =");
-//    Serial.print(d1);
-//    Serial.print("   _d_2 =");
-//    Serial.println(d2);
+    Serial.println("send i2c message");
+    Serial.print("_d_1 =");
+    Serial.print(d1);
+    Serial.print("   _d_2 =");
+    Serial.println(d2);
     // END TEST
 
     // set the other nodes average
@@ -352,15 +352,15 @@ void receive_i2c_message(int how_many){
     }
     //Serial.println();
     //TEST
-//    Serial.print("_d_1 =");
-//    for (int j = 0; j < 6; ++j) {
-//        Serial.print( _d_1[j]);
-//    }
-//    Serial.print("   _d_2 =");
-//    for (int j = 0; j < 6; ++j) {
-//        Serial.print( _d_2[j]);
-//    }
-//    Serial.println();
+    Serial.print("_d_1 =");
+    for (int j = 0; j < 6; ++j) {
+        Serial.print( _d_1[j]);
+    }
+    Serial.print("   _d_2 =");
+    for (int j = 0; j < 6; ++j) {
+        Serial.print( _d_2[j]);
+    }
+    Serial.println();
     // END TEST
 
     // add data from _d_1 and _d_2 to node.
