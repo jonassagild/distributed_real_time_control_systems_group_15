@@ -362,6 +362,17 @@ void iterate() {
     node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
     node.d_av[1] = (node.d[1]+node.dim_neighbour[1])/2;
 
+    Serial.println("Ny runde");
+    
+    Serial.print("node.node.d[0] =");
+    Serial.println(node.d[0]);
+    Serial.print("node.dim_neighbour[0] =");
+    Serial.println(node.dim_neighbour[0]);
+    
+    Serial.print("node.d_av[0] =");
+    Serial.println(node.d_av[0]);
+    Serial.println(" ");
+    
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
@@ -372,16 +383,7 @@ void iterate() {
     node.d[0] = res.d_best0;
     node.d[1] = res.d_best1;
     
-    Serial.println(" Ny runde");
-    
-    Serial.print("node.node.d[0] =");
-    Serial.println(node.d[0]);
-    Serial.print("node.dim_neighbour[0] =");
-    Serial.println(node.dim_neighbour[0]);
-    
-    Serial.print("node.d_av[0] =");
-    Serial.println(node.d_av[0]);
-    
+    delay(3000);
     send_i2c_message(node.d[0], node.d[1]);
     
 }
@@ -389,6 +391,7 @@ void iterate() {
 void consens(){
     for(int j = 0; j < 3; j++) {
         if (_received_new_data == true){
+            
             _received_new_data = false;
             iterate();
         }
