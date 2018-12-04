@@ -320,19 +320,19 @@ void send_i2c_message(double d1, double d2){
     */
     // set the other nodes average
     Wire.beginTransmission(_i2c_slave_address);
-    dtostrf(d1, 3, 2, _chars);
-    Wire.write(_chars, 6);
+    dtostrf(d1, 3, 4, _chars);
+    Wire.write(_chars, 8);
     Wire.write(';');
-    dtostrf(d2, 3, 2, _chars);
-    Wire.write(_chars, 6);
+    dtostrf(d2, 3, 4, _chars);
+    Wire.write(_chars, 8);
     Wire.endTransmission();
 }
 
 void receive_i2c_message(int how_many){
     //Serial.println("mottar data");
     int i = 0;
-    char _d_1[6];
-    char _d_2[6];
+    char _d_1[8];
+    char _d_2[8];
     bool _semicolon = false;
     while (Wire.available()> 0) { // check data on BUS
         char c = Wire.read(); //receive byte at I2S BUS
@@ -402,8 +402,9 @@ void iterate() {
 }
 
 void consens(){
-    while (true){
+    for(int j = 0; i < 5; i++) {
         if (_received_new_data == true){
+            
             _received_new_data = false;
             iterate();
         }
