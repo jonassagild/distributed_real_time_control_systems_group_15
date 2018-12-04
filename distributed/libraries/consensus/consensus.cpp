@@ -418,7 +418,7 @@ void iterate() {
     node.d[0] = res.d_best0;
     node.d[1] = res.d_best1;
     
-    delay(300);
+    // delay(300);
     send_i2c_message(node.d[0], node.d[1]);
     
 }
@@ -439,7 +439,7 @@ void consens(){
             iterate();
         }
         // Serial.print("kjører");
-        delay(100);
+        // delay(100);
     }
 
 }
