@@ -310,13 +310,14 @@ void initialize_node(){
 
 void send_i2c_message(double d1, double d2){
     //TEST
+    /*
     Serial.println("send i2c message");
     Serial.print("_d_1 =");
     Serial.print(d1);
     Serial.print("   _d_2 =");
     Serial.println(d2);
     // END TEST
-
+    */
     // set the other nodes average
     Wire.beginTransmission(_i2c_slave_address);
     dtostrf(d1, 3, 2, _chars);
@@ -352,6 +353,7 @@ void receive_i2c_message(int how_many){
     }
     //Serial.println();
     //TEST
+    /*
     Serial.print("_d_1 =");
     for (int j = 0; j < 6; ++j) {
         Serial.print( _d_1[j]);
@@ -361,7 +363,8 @@ void receive_i2c_message(int how_many){
         Serial.print( _d_2[j]);
     }
     Serial.println();
-    // END TEST
+    */
+     // END TEST
 
     // add data from _d_1 and _d_2 to node.
     node.dim_neighbour[0] = atof(_d_1);
@@ -373,7 +376,11 @@ void iterate() {
     // update averages
     node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
     node.d_av[1] = (node.d[1]+node.dim_neighbour[1])/2;
-    
+    Serial.print("node.d_av[0] =");
+    Serial.print(node.d_av[0]);
+    Serial.print("   node.d_av[1] =");
+    Serial.println(node.d_av[1]);
+
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
@@ -401,7 +408,7 @@ void consens(){
             iterate();
         }
         // Serial.print("kjører");
-        delay(5000);
+        delay(10000);
     }
 }
 
