@@ -83,6 +83,8 @@ double inner_product(double* vector1, double* vector2);
 void iterate();
 void send_i2c_message(double d1, double d2);
 void receive_i2c_message(int how_many);
+void send_is_ready_i2c_message();
+bool receive_is_ready_i2c_message();
 /* END help methods */
 
 
