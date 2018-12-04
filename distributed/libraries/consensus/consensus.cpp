@@ -318,7 +318,8 @@ void send_i2c_message(double d1, double d2){
     Serial.println(d2);
     // END TEST
     */
-    // set the other nodes average
+    
+    // send own locally optimized dimmings
     Wire.beginTransmission(_i2c_slave_address);
     dtostrf(d1, 3, 4, _chars);
     Wire.write(_chars, 8);
@@ -329,17 +330,14 @@ void send_i2c_message(double d1, double d2){
 }
 
 void receive_i2c_message(int how_many){
-    //Serial.println("mottar data");
     int i = 0;
     char _d_1[8];
     char _d_2[8];
     bool _semicolon = false;
     while (Wire.available()> 0) { // check data on BUS
         char c = Wire.read(); //receive byte at I2S BUS
-        //Serial.print(c);
 
         if (c == ';') {
-            //Serial.println("hei");
             _semicolon = true;
             i = 0;
             continue;
@@ -351,20 +349,6 @@ void receive_i2c_message(int how_many){
         }
         i = i + 1;
     }
-    //Serial.println();
-    //TEST
-    /*
-    Serial.print("_d_1 =");
-    for (int j = 0; j < 6; ++j) {
-        Serial.print( _d_1[j]);
-    }
-    Serial.print("   _d_2 =");
-    for (int j = 0; j < 6; ++j) {
-        Serial.print( _d_2[j]);
-    }
-    Serial.println();
-    */
-     // END TEST
 
     // add data from _d_1 and _d_2 to node.
     node.dim_neighbour[0] = atof(_d_1);
@@ -374,17 +358,9 @@ void receive_i2c_message(int how_many){
 
 void iterate() {
     // update averages
-    Serial.println(" Ny runde");
-
-    Serial.print("node.node.d[0] =");
-    Serial.println(node.d[0]);
-    Serial.print("node.dim_neighbour[0] =");
-    Serial.println(node.dim_neighbour[0]);
 
     node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
     node.d_av[1] = (node.d[1]+node.dim_neighbour[1])/2;
-    Serial.print("node.d_av[0] =");
-    Serial.println(node.d_av[0]);
 
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
@@ -395,12 +371,16 @@ void iterate() {
     res = primal_solve(node, rho);
     node.d[0] = res.d_best0;
     node.d[1] = res.d_best1;
-    // TEST
-//    Serial.print("res.d_best0 =");
-//    Serial.print(res.d_best0);
-//    Serial.print("   res.d_best0 =");
-//    Serial.println(res.d_best1);
-    // TEST
+    
+    Serial.println(" Ny runde");
+    
+    Serial.print("node.node.d[0] =");
+    Serial.println(node.d[0]);
+    Serial.print("node.dim_neighbour[0] =");
+    Serial.println(node.dim_neighbour[0]);
+    
+    Serial.print("node.d_av[0] =");
+    Serial.println(node.d_av[0]);
     
     send_i2c_message(node.d[0], node.d[1]);
     
@@ -409,7 +389,6 @@ void iterate() {
 void consens(){
     for(int j = 0; j < 3; j++) {
         if (_received_new_data == true){
-            
             _received_new_data = false;
             iterate();
         }
