@@ -41,7 +41,7 @@ struct Res {
  - int master_address: own address, needs to be unique
  - int slave_address: address to send data to
  */
-void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_master_address, int index);
+void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_base_address, int index);
 
 /*
  initialize_node

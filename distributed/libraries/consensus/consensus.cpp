@@ -274,7 +274,7 @@ Res primal_solve(Node node, double rho){
     return res;
 }
 
-void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_master_address, int _index){
+void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_base_address, int _index){
     // Coupling matrix (dim 2 by 2)
     k_11 = _k_11;
     k_12 = _k_12;
@@ -289,7 +289,8 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     // Solve with consensus.
     rho = _rho;
     
-    _i2c_master_address = i2c_master_address;
+    _i2c_master_address = i2c_base_address + _index;
+    _i2c_slave_address = i2c_base_address + (3 - _index);
     
     Wire.begin(_i2c_master_address);
     Wire.onReceive(receive_i2c_message); //event handler
