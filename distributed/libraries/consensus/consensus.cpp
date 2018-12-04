@@ -9,9 +9,9 @@
 #include "consensus.hpp"
 
 double k_11, k_12, k_21, k_22; // K – Coupling matrix (dim 2 by 2)
-double l[2]; // l – columns vector with lower bound illuminances (dim n)
-double o[2]; // o – columns vector of external illuminances (dim n)
-double c[2]; // c - the vector of all energy costs
+double l; // l – columns vector with lower bound illuminances (dim n)
+double o; // o – columns vector of external illuminances (dim n)
+double c; // c - the vector of all energy costs
 double rho; // Solve with consensus. ρ = global optimization parameter?
 char _chars[11]; // used to transfer message (d1;d2)
 volatile bool _received_new_data = true; // true if we've received new data since last iteration
@@ -274,18 +274,18 @@ Res primal_solve(Node node, double rho){
     return res;
 }
 
-void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_master_address){
+void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_master_address, int _index){
     // Coupling matrix (dim 2 by 2)
     k_11 = _k_11;
     k_12 = _k_12;
     k_21 = _k_21;
     k_22 = _k_22;
     // lower bound illuminance. double l1 = 80, l2 = 270;
-    l[0] = _l;
+    l = _l;
     // external illuminance double o1 = 50, o2 = 50;
-    o[0] = _o;
+    o = _o;
     // Energy "costs" at each desk i double c1 = 1, c2 = 1;
-    c[0] = _c;
+    c = _c;
     // Solve with consensus.
     rho = _rho;
     
@@ -294,18 +294,29 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     Wire.begin(_i2c_master_address);
     Wire.onReceive(receive_i2c_message); //event handler
     TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
+    
+    initialize_node(_index);
 }
 
-void initialize_node(){
+void initialize_node(int index){
     // initialize node values
-    node.index = 1;
-    node.k[0] = k_11;
-    node.k[1] = k_12;
+    if (index == 1) {
+        node.index = 1;
+        node.k[0] = k_11;
+        node.k[1] = k_12;
+        node.m = node.n - pow(k_11, 2);
+
+    } else {
+        node.index = 2;
+        node.k[0] = k_21;
+        node.k[1] = k_22;
+        node.m = node.n - pow(k_22, 2);
+    }
+    
     node.n = vectorNorm(node.k);
-    node.m = node.n - pow(k_11, 2);
-    node.c = c[0];
-    node.o = o[0];
-    node.l = l[0];
+    node.c = c;
+    node.o = o;
+    node.l = l;
 }
 
 void send_i2c_message(double d1, double d2){
@@ -389,7 +400,7 @@ void iterate() {
 }
 
 void consens(){
-    for(int j = 0; j < 3; j++) {
+    for(int j = 0; j < 5; j++) {
         if (_received_new_data == true){
             
             _received_new_data = false;

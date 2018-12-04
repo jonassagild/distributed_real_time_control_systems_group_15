@@ -24,7 +24,7 @@ struct Node{
     volatile double c; // the local cost
     volatile double o; // The local external illuminance influence oi
     volatile double l; // The local illuminance lower bound (occupancy state) Li
-    volatile double dim_neighbour[2]; // the others neighbours dim
+    volatile double dim_neighbour[2] = {0, 0}; // the others neighbours dim
 };
 
 // struct containing results from primal_solve
@@ -41,14 +41,14 @@ struct Res {
  - int master_address: own address, needs to be unique
  - int slave_address: address to send data to
  */
-void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_master_address);
+void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_master_address, int index);
 
 /*
  initialize_node
  input
  
  */
-void initialize_node();
+void initialize_node(int index);
 
 
 /*
