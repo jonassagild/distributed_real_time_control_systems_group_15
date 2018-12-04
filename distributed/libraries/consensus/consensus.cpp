@@ -316,56 +316,42 @@ void send_i2c_message(double d1, double d2){
     Serial.print("   _d_2 =");
     Serial.println(d2);
     // END TEST
-
-    // set the other nodes average
+    
+    // send own data
+    dtostrf(d1, 3, 3, _chars);
     Wire.beginTransmission(_i2c_slave_address);
-    dtostrf(d1, 3, 2, _chars);
-    Wire.write(_chars, 6);
-    Wire.write(';');
-    dtostrf(d2, 3, 2, _chars);
-    Wire.write(_chars, 6);
+    Wire.write(_chars, 7);
     Wire.endTransmission();
 }
 
 void receive_i2c_message(int how_many){
     //Serial.println("mottar data");
     int i = 0;
-    char _d_1[6];
-    char _d_2[6];
-    bool _semicolon = false;
+    char _d_2[7];
     while (Wire.available()> 0) { // check data on BUS
-        char c = Wire.read(); //receive byte at I2S BUS
-        //Serial.print(c);
-
-        if (c == ';') {
-            //Serial.println("hei");
-            _semicolon = true;
-            i = 0;
-            continue;
-        }
-        if (_semicolon) {
-            _d_2[i] = c;
-        } else {
-            _d_1[i] = c;
-        }
+        char c = Wire.read(); //receive byte at I2C BUS
+        _d_2[i] = c;
         i = i + 1;
     }
-    //Serial.println();
+    Serial.println("mottar");
     //TEST
-    Serial.print("_d_1 =");
-    for (int j = 0; j < 6; ++j) {
-        Serial.print( _d_1[j]);
-    }
     Serial.print("   _d_2 =");
-    for (int j = 0; j < 6; ++j) {
+    for (int j = 0; j < 7; ++j) {
         Serial.print( _d_2[j]);
     }
     Serial.println();
     // END TEST
-
-    // add data from _d_1 and _d_2 to node.
-    node.dim_neighbour[0] = atof(_d_1);
+    
+    // save data from other node
     node.dim_neighbour[1] = atof(_d_2);
+    
+    Serial.println(" ");
+    Serial.println("prints actual values");
+    Serial.println(node.dim_neighbour[0]);
+
+    Serial.println(node.dim_neighbour[1]);
+    Serial.println(" ");
+    
     _received_new_data = true;
 }
 
@@ -401,7 +387,7 @@ void consens(){
             iterate();
         }
         // Serial.print("kjører");
-        delay(5000);
+        delay(15000);
     }
 }
 
