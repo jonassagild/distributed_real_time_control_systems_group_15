@@ -105,12 +105,14 @@ Res primal_solve(Node node, double rho){
      • the computation of the average of the primal variables of all nodes d_i and
      • the dual variables yi
      */
+
+
     Res res;
     double *pointer; // Use the same pointer several times
     
     // Initialize variables
     double d_best[2] = {-1, -1};
-    double cost_best = 100000;
+    double cost_best = 10000000;
     double d[2];
     double z[2];
     
@@ -264,6 +266,11 @@ Res primal_solve(Node node, double rho){
     res.cost_best = cost_best;
     res.d_best0 = d_best[0];
     res.d_best1 = d_best[1];
+//    Serial.println("calc costs:");
+//    Serial.print("d_best[0] =");
+//    Serial.print(d_best[0]);
+//    Serial.print("   d_best[1] =");
+//    Serial.println(d_best[1]);
     return res;
 }
 
@@ -302,7 +309,14 @@ void initialize_node(){
 }
 
 void send_i2c_message(double d1, double d2){
-    Serial.println("send i2c message");
+    //TEST
+//    Serial.println("send i2c message");
+//    Serial.print("_d_1 =");
+//    Serial.print(d1);
+//    Serial.print("   _d_2 =");
+//    Serial.println(d2);
+    // END TEST
+
     // set the other nodes average
     Wire.beginTransmission(_i2c_slave_address);
     dtostrf(d1, 3, 2, _chars);
@@ -314,14 +328,17 @@ void send_i2c_message(double d1, double d2){
 }
 
 void receive_i2c_message(int how_many){
-    Serial.println("mottar data");
+    //Serial.println("mottar data");
     int i = 0;
     char _d_1[6];
     char _d_2[6];
     bool _semicolon = false;
     while (Wire.available()> 0) { // check data on BUS
         char c = Wire.read(); //receive byte at I2S BUS
+        //Serial.print(c);
+
         if (c == ';') {
+            //Serial.println("hei");
             _semicolon = true;
             i = 0;
             continue;
@@ -333,7 +350,19 @@ void receive_i2c_message(int how_many){
         }
         i = i + 1;
     }
-    
+    //Serial.println();
+    //TEST
+//    Serial.print("_d_1 =");
+//    for (int j = 0; j < 6; ++j) {
+//        Serial.print( _d_1[j]);
+//    }
+//    Serial.print("   _d_2 =");
+//    for (int j = 0; j < 6; ++j) {
+//        Serial.print( _d_2[j]);
+//    }
+//    Serial.println();
+    // END TEST
+
     // add data from _d_1 and _d_2 to node.
     node.dim_neighbour[0] = atof(_d_1);
     node.dim_neighbour[1] = atof(_d_2);
@@ -348,12 +377,18 @@ void iterate() {
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
-    
+
     Res res;
 
     res = primal_solve(node, rho);
     node.d[0] = res.d_best0;
     node.d[1] = res.d_best1;
+    // TEST
+//    Serial.print("res.d_best0 =");
+//    Serial.print(res.d_best0);
+//    Serial.print("   res.d_best0 =");
+//    Serial.println(res.d_best1);
+    // TEST
     
     send_i2c_message(node.d[0], node.d[1]);
     
@@ -366,7 +401,7 @@ void consens(){
             iterate();
         }
         // Serial.print("kjører");
-        delay(100000);
+        delay(5000);
     }
 }
 

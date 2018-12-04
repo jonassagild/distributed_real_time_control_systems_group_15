@@ -14,16 +14,16 @@
 #include <Wire.h>
 
 struct Node{
-    int index; // node index
-    double d[2] = {0, 0}; // d – column vector with all normalized dimming (dim n)
-    double d_av[2] = {0, 0}; // average dimming level
-    double y[2] = {0, 0}; // Lagrange multipliers
-    double k[2]; // The coupling gains from the other luminaires to itself, ki
-    double n; // norm^2
-    double m; // ????
-    double c; // the local cost
-    double o; // The local external illuminance influence oi
-    double l; // The local illuminance lower bound (occupancy state) Li
+    volatile int index; // node index
+    volatile double d[2] = {0, 0}; // d – column vector with all normalized dimming (dim n)
+    volatile double d_av[2] = {0, 0}; // average dimming level
+    volatile double y[2] = {0, 0}; // Lagrange multipliers
+    volatile double k[2]; // The coupling gains from the other luminaires to itself, ki
+    volatile double n; // norm^2
+    volatile double m; // ????
+    volatile double c; // the local cost
+    volatile double o; // The local external illuminance influence oi
+    volatile double l; // The local illuminance lower bound (occupancy state) Li
     volatile double dim_neighbour[2]; // the others neighbours dim
 };
 
