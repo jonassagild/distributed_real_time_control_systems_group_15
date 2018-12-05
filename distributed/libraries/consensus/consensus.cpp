@@ -379,7 +379,8 @@ void send_is_ready_i2c_message_node2(){
 
 void receive_i2c_message(int how_many){
     // check if message is ready signal
-
+    
+    // TEST RUN PINGPONG
     if(test == true){
         if (node.index == 2){
             char c;
@@ -400,19 +401,18 @@ void receive_i2c_message(int how_many){
                 Serial.println();
             }
         }
-
-    } else {
+        // NOT TEST. RUN CODE
+    } else if (test == false) { // Initializing
         //TEST
-        if (is_other_node_ready == false) { // Initializing
+        while (Wire.available() > 0) { // check data on BUS
+            char c = Wire.read();
+        }
+        if (is_other_node_ready == false) {
             if (node.index == 2) {
-                char c;
-                while (Wire.available() > 0) { // check data on BUS
-                    c = Wire.read();
-                }
+                
                 if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
                     is_other_node_ready = true;
                     send_is_ready_i2c_message_node2();
-
                 }
             }else {
                 if (is_message_ready_message_node2(c)){
@@ -436,7 +436,7 @@ void receive_i2c_message(int how_many){
                 is_other_node_ready = true;
             }
 
-        }*/ else { // else run normal code
+         }*/} else { // else run normal code
             int i = 0;
             char _d_1[8];
             char _d_2[8];
@@ -463,7 +463,6 @@ void receive_i2c_message(int how_many){
             _received_new_data = true;
         }
     }
-}
 
 void iterate() {
     // update averages
@@ -498,7 +497,6 @@ void iterate() {
 }
 
 void consens(){
-
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             // delay(1000);
