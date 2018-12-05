@@ -8,14 +8,15 @@
 #include "pingpongtest.hpp"
 
 void initialize_system(){
-    Wire.begin(24);
+    Wire.begin(25);
     Wire.onReceive(receive_i2c_message); //event handler
-    TWAR = (24 << 1) | 1; // enable broadcasts to be
+    TWAR = (25 << 1) | 1; // enable broadcasts to be
 }
 
 void send_i2c_message(){
-    Wire.beginTransmission(25);
+    Wire.beginTransmission(24);
     Wire.write('X');
+    Wire.endTransmission();
 }
 
 void receive_i2c_message(int how_many){
