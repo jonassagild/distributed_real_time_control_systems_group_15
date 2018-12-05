@@ -359,15 +359,16 @@ void send_is_ready_i2c_message(){
 void receive_i2c_message(int how_many){
     // check if message is ready signal
     if (not is_other_node_ready) {
+        char c;
         while (Wire.available() > 0) { // check data on BUS
-            char c = Wire.read(); //receive byte at I2S BUS
-            Serial.print(c);
+            c = Wire.read(); //receive byte at I2S BUS
         }
         if (is_message_ready_message(c)) {
             if (node.index == 2) {
                 //delay(1000);
                 send_is_ready_i2c_message();
             }
+            Serial.print("test");
             is_other_node_ready = true;
         }
     } else { // else run normal code
@@ -435,13 +436,10 @@ void consens(){
 
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
-            delay(1000);
+            // delay(1000);
             send_is_ready_i2c_message(); // send ready message
         }
-        Serial.print(is_other_node_ready);
-        Serial.println();
     }
-    Serial.print("CONS");
     while(true) {
         if (_received_new_data == true){
             
