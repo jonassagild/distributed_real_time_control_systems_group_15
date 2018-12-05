@@ -7,14 +7,16 @@
 
 #include "pingpongtest.hpp"
 
+volatile bool received_message = true;
+
 void initialize_system(){
-    Wire.begin(25);
+    Wire.begin(24);
     Wire.onReceive(receive_i2c_message); //event handler
-    TWAR = (25 << 1) | 1; // enable broadcasts to be
+    TWAR = (24 << 1) | 1; // enable broadcasts to be
 }
 
 void send_i2c_message(){
-    Wire.beginTransmission(24);
+    Wire.beginTransmission(25);
     Wire.write('X');
     Wire.endTransmission();
 }
@@ -24,7 +26,20 @@ void receive_i2c_message(int how_many){
     while (Wire.available() > 0) {
         c = Wire.read();
     }
-    send_i2c_message();
     Serial.print(c);
+    received_message = true;
+}
+
+void wait_loop() {
+    while(received_message == false){
+        // just wait
+    }
+    send_i2c_message();
+}
+
+void waiter() {
+    while(true) {
+        // just wait
+    }
 }
 

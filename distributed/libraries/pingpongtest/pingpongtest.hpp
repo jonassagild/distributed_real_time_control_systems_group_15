@@ -17,4 +17,8 @@ void send_i2c_message();
 
 void receive_i2c_message(int how_many);
 
+void wait_loop();
+
+void waiter();
+
 #endif /* pingpongtest_hpp */
