@@ -91,5 +91,6 @@ bool receive_is_ready_i2c_message();
 void send_pingpong_i2c();
 void send_pongping_i2c();
 void test_pingpong();
+void send_is_ready_i2c_message_node2();
 
 #endif /* consensus_hpp */
