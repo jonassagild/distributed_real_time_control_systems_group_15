@@ -25,6 +25,10 @@ volatile bool is_other_node_ready = false;
 // Declare node
 Node node;
 
+// TEST PINGPONG
+bool pingpong = false;
+bool test = true;
+
 
 /* START help methods */
 double vectorNorm(double vector[]) {
@@ -355,49 +359,59 @@ void send_is_ready_i2c_message(){
 
 }
 
-
 void receive_i2c_message(int how_many){
     // check if message is ready signal
-    if (not is_other_node_ready) {
+
+    if(test == true){
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read(); //receive byte at I2S BUS
         }
-        if (is_message_ready_message(c)) {
-            if (node.index == 2) {
-                //delay(1000);
-                send_is_ready_i2c_message();
-            }
-            Serial.print("test");
-            is_other_node_ready = true;
-        }
-    } else { // else run normal code
-        int i = 0;
-        char _d_1[8];
-        char _d_2[8];
-        bool _semicolon = false;
-        while (Wire.available()> 0) { // check data on BUS
-            char c = Wire.read(); //receive byte at I2S BUS
-
-            if (c == ';') {
-                _semicolon = true;
-                i = 0;
-                continue;
-            }
-            if (_semicolon) {
-                _d_2[i] = c;
-            } else {
-                _d_1[i] = c;
-            }
-            i = i + 1;
+        if (c == 'X'){
+            pingpong == true;
         }
 
-        // add data from _d_1 and _d_2 to node.
-        node.dim_neighbour[0] = atof(_d_1);
-        node.dim_neighbour[1] = atof(_d_2);
-        _received_new_data = true;
-     }
+    } else {
+        if (not is_other_node_ready) {
+            char c;
+            while (Wire.available() > 0) { // check data on BUS
+                c = Wire.read(); //receive byte at I2S BUS
+            }
+            if (is_message_ready_message(c)) {
+                if (node.index == 2) {
+                    delay(1000);
+                    send_is_ready_i2c_message();
+                }
+                Serial.print("test");
+                is_other_node_ready = true;
+            }
+        } else { // else run normal code
+            int i = 0;
+            char _d_1[8];
+            char _d_2[8];
+            bool _semicolon = false;
+            while (Wire.available() > 0) { // check data on BUS
+                char c = Wire.read(); //receive byte at I2S BUS
 
+                if (c == ';') {
+                    _semicolon = true;
+                    i = 0;
+                    continue;
+                }
+                if (_semicolon) {
+                    _d_2[i] = c;
+                } else {
+                    _d_1[i] = c;
+                }
+                i = i + 1;
+            }
+
+            // add data from _d_1 and _d_2 to node.
+            node.dim_neighbour[0] = atof(_d_1);
+            node.dim_neighbour[1] = atof(_d_2);
+            _received_new_data = true;
+        }
+    }
 }
 
 void iterate() {
@@ -452,3 +466,35 @@ void consens(){
 
 }
 
+
+void send_pingpong_i2c(){
+    Serial.print("Node 1 send first message \n");
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write('X');
+    //Serial.print("before \n");
+    Wire.endTransmission(); // Crash here!
+    //Serial.print("after \n");
+}
+
+void send_pongping_i2c(){
+    Serial.print("Node 2 send first message \n");
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write('Y');
+    //Serial.print("before \n");
+    Wire.endTransmission(); // Crash here!
+    //Serial.print("after \n");
+}
+
+void test_pingpong(){
+    delay(10000);
+    if (node.index == 1){
+        send_pingpong_i2c();
+    }
+    else if(node.index == 2){
+        while (pingpong == false){
+            send_pongping_i2c();
+        }
+    }
+
+
+}
