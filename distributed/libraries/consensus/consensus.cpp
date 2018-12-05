@@ -27,7 +27,7 @@ Node node;
 
 // TEST PINGPONG
 volatile bool pingpong = false;
-bool test = true;
+bool test = false;
 
 
 /* START help methods */
@@ -522,7 +522,7 @@ void consens(){
 
 
 void send_pingpong_i2c(){
-    Serial.print("Node 1 send first message \n");
+    Serial.print("pingpong Node 1 send first message \n");
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write('X');
     //Serial.print("before \n");
@@ -531,7 +531,7 @@ void send_pingpong_i2c(){
 }
 
 void send_pongping_i2c(){
-    Serial.print("Node 2 send first message \n");
+    Serial.print("pingpong Node 2 send first message \n");
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write('Y');
     //Serial.print("before \n");
