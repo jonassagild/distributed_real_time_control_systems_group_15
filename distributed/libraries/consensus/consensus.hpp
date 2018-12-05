@@ -87,6 +87,9 @@ void send_is_ready_i2c_message();
 bool receive_is_ready_i2c_message();
 /* END help methods */
 
-
+/* TEST methods */
+void send_pingpong_i2c();
+void send_pongping_i2c();
+void test_pingpong();
 
 #endif /* consensus_hpp */
