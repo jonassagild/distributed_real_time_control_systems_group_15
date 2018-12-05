@@ -27,7 +27,7 @@ Node node;
 
 // TEST PINGPONG
 volatile bool pingpong = false;
-bool test = true;
+bool test = false;
 
 
 /* START help methods */
@@ -394,6 +394,26 @@ void receive_i2c_message(int how_many){
         }
 
     } else {
+        //TEST
+        if (is_other_node_ready == false) { // Initializing
+            if (node.index == 2) {
+                char c;
+                while (Wire.available() > 0) { // check data on BUS
+                    c = Wire.read();
+                }
+                if (is_message_ready_message(c)) { // Check if message from node 1 is ready message
+                    is_other_node_ready = true;
+                    send_is_ready_i2c_message_node2();
+
+                }
+            }else {
+                if (is_message_ready_message(c)){
+                    is_other_node_ready = true;
+                }
+            }
+        }
+        //END TEST
+        /*
         if (not is_other_node_ready) {
             char c;
             while (Wire.available() > 0) { // check data on BUS
@@ -407,7 +427,8 @@ void receive_i2c_message(int how_many){
                 }
                 is_other_node_ready = true;
             }
-        } else { // else run normal code
+
+        }*/ else { // else run normal code
             int i = 0;
             char _d_1[8];
             char _d_2[8];
