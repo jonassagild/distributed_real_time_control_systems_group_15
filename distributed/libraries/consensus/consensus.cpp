@@ -27,7 +27,7 @@ Node node;
 
 // TEST PINGPONG
 volatile bool pingpong = false;
-bool test = false;
+bool test = true;
 
 
 /* START help methods */
@@ -339,7 +339,7 @@ void send_i2c_message(double d1, double d2){
     Wire.endTransmission();
 }
 
-bool is_message_ready_message(char message){
+bool is_message_ready_message_node1(char message){
     if (message == 'X') {
         return true;
     } else {
@@ -347,7 +347,15 @@ bool is_message_ready_message(char message){
     }
 }
 
-void send_is_ready_i2c_message(){
+bool is_message_ready_message_node2(char message){
+    if (message == 'Y') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void send_is_ready_i2c_message_node1(){
     //TODO mutex?
 
     Serial.print("NODE1 sending\n");
@@ -362,7 +370,7 @@ void send_is_ready_i2c_message(){
 void send_is_ready_i2c_message_node2(){
     Serial.print("NODE2 sending\n");
     Wire.beginTransmission(_i2c_slave_address);
-    Wire.write('X');
+    Wire.write('Y');
     Serial.print("before \n");
     Wire.endTransmission(); // Crash here!
     Serial.print("after \n");
@@ -401,13 +409,13 @@ void receive_i2c_message(int how_many){
                 while (Wire.available() > 0) { // check data on BUS
                     c = Wire.read();
                 }
-                if (is_message_ready_message(c)) { // Check if message from node 1 is ready message
+                if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
                     is_other_node_ready = true;
                     send_is_ready_i2c_message_node2();
 
                 }
             }else {
-                if (is_message_ready_message(c)){
+                if (is_message_ready_message_node1(c)){
                     is_other_node_ready = true;
                 }
             }
@@ -494,7 +502,7 @@ void consens(){
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             // delay(1000);
-            send_is_ready_i2c_message(); // send ready message
+            send_is_ready_i2c_message_node1(); // send ready message
             delay(1000);
         }
 
