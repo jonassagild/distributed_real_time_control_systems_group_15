@@ -409,13 +409,13 @@ void receive_i2c_message(int how_many){
                 while (Wire.available() > 0) { // check data on BUS
                     c = Wire.read();
                 }
-                if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
+                if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
                     is_other_node_ready = true;
                     send_is_ready_i2c_message_node2();
 
                 }
             }else {
-                if (is_message_ready_message_node1(c)){
+                if (is_message_ready_message_node2(c)){
                     is_other_node_ready = true;
                 }
             }
@@ -510,7 +510,6 @@ void consens(){
     Serial.print("INITIALIZED");
     while(true) {
         if (_received_new_data == true){
-            
             _received_new_data = false;
             iterate();
         }
