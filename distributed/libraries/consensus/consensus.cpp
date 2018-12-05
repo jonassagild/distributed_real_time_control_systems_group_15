@@ -372,14 +372,14 @@ void receive_i2c_message(int how_many){
             if (c == 'X'){
                 pingpong == true;
             }
-            
+
         }else{
             char c;
             while (Wire.available() > 0) { // check data on BUS
                 c = Wire.read(); //receive byte at I2S BUS
                 Serial.print(c);
+            }
         }
-
     } else {
         if (not is_other_node_ready) {
             char c;
