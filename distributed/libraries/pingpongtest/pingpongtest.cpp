@@ -24,5 +24,6 @@ void receive_i2c_message(int how_many){
         c = Wire.read();
     }
     send_i2c_message();
+    Serial.print(c);
 }
 
