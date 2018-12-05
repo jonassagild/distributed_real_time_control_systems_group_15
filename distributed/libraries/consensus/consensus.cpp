@@ -345,6 +345,7 @@ bool is_message_ready_message(char message){
 
 void send_is_ready_i2c_message(){
     //TODO mutex?
+
     Serial.print("Sending im ready message\n");
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write('X');
@@ -361,13 +362,13 @@ void receive_i2c_message(int how_many){
         while (Wire.available() > 0) { // check data on BUS
             char c = Wire.read(); //receive byte at I2S BUS
             Serial.print(c);
-            if (is_message_ready_message(c)) {
-                if (node.index == 2) {
-                    delay(1000);
-                    send_is_ready_i2c_message();
-                }
-                is_other_node_ready = true;
+        }
+        if (is_message_ready_message(c)) {
+            if (node.index == 2) {
+                //delay(1000);
+                send_is_ready_i2c_message();
             }
+            is_other_node_ready = true;
         }
     } else { // else run normal code
         int i = 0;
@@ -434,9 +435,9 @@ void consens(){
 
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
+            delay(1000);
             send_is_ready_i2c_message(); // send ready message
         }
-        delay(1000);
         Serial.print(is_other_node_ready);
         Serial.println();
     }
