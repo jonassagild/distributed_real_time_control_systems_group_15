@@ -363,6 +363,7 @@ void receive_i2c_message(int how_many){
             Serial.print(c);
             if (is_message_ready_message(c)) {
                 if (node.index == 2) {
+                    delay(1000);
                     send_is_ready_i2c_message();
                 }
                 is_other_node_ready = true;
