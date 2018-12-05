@@ -379,6 +379,8 @@ void receive_i2c_message(int how_many){
             while (Wire.available() > 0) { // check data on BUS
                 c = Wire.read(); //receive byte at I2S BUS
                 Serial.print(c);
+                Serial.println();
+
             }
             if (c == 'X'){
                 pingpong == true;
