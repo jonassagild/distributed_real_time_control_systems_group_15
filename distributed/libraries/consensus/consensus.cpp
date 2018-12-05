@@ -8,6 +8,7 @@
 
 #include "consensus.hpp"
 
+
 double k_11, k_12, k_21, k_22; // K – Coupling matrix (dim 2 by 2)
 double l; // l – columns vector with lower bound illuminances (dim n)
 double o; // o – columns vector of external illuminances (dim n)
@@ -19,7 +20,7 @@ int _i2c_master_address = 26;
 int _i2c_slave_address = 0;
 
 // bool
-bool is_other_node_ready = false;
+volatile bool is_other_node_ready = false;
 
 // Declare node
 Node node;
@@ -343,9 +344,14 @@ bool is_message_ready_message(char message){
 }
 
 void send_is_ready_i2c_message(){
+    //TODO mutex?
+    Serial.print("Sending im ready message\n");
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write('X');
-    Wire.endTransmission();
+    Serial.print("before \n");
+    Wire.endTransmission(); // Crash here!
+    Serial.print("after \n");
+
 }
 
 
@@ -429,8 +435,11 @@ void consens(){
         if (node.index ==  1) {
             send_is_ready_i2c_message(); // send ready message
         }
+        delay(1000);
+        Serial.print(is_other_node_ready);
+        Serial.println();
     }
-
+    Serial.print("CONS");
     while(true) {
         if (_received_new_data == true){
             
