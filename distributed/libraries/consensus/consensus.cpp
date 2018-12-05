@@ -350,7 +350,7 @@ bool is_message_ready_message(char message){
 void send_is_ready_i2c_message(){
     //TODO mutex?
 
-    Serial.print("Sending im ready message\n");
+    Serial.print("NODE1 sending\n");
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write('X');
     Serial.print("before \n");
@@ -360,7 +360,7 @@ void send_is_ready_i2c_message(){
 }
 
 void send_is_ready_i2c_message_node2(){
-    Serial.print("Sending im ready message\n");
+    Serial.print("NODE2 sending\n");
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write('X');
     Serial.print("before \n");
@@ -474,6 +474,7 @@ void consens(){
         if (node.index ==  1) {
             // delay(1000);
             send_is_ready_i2c_message(); // send ready message
+            delay(1000);
         }
     }
     while(true) {
@@ -515,7 +516,7 @@ void test_pingpong(){
     else if(node.index == 2){
         while (pingpong == false){
             send_pongping_i2c();
-            
+
         }
     }
 
