@@ -27,7 +27,7 @@ Node node;
 
 // TEST PINGPONG
 volatile bool pingpong = false;
-bool test = false;
+bool test = true;
 
 
 /* START help methods */
@@ -369,7 +369,6 @@ void send_is_ready_i2c_message_node2(){
 
 }
 
-
 void receive_i2c_message(int how_many){
     // check if message is ready signal
 
@@ -380,7 +379,6 @@ void receive_i2c_message(int how_many){
                 c = Wire.read(); //receive byte at I2S BUS
                 Serial.print(c);
                 Serial.println();
-
             }
             if (c == 'X'){
                 pingpong == true;
@@ -407,7 +405,6 @@ void receive_i2c_message(int how_many){
                     // TESTING TODO
                     send_is_ready_i2c_message_node2();
                 }
-                Serial.print("test");
                 is_other_node_ready = true;
             }
         } else { // else run normal code
@@ -479,8 +476,9 @@ void consens(){
             send_is_ready_i2c_message(); // send ready message
             delay(1000);
         }
-        Serial.print("INITIALIZED");
+
     }
+    Serial.print("INITIALIZED");
     while(true) {
         if (_received_new_data == true){
             
@@ -520,7 +518,7 @@ void test_pingpong(){
     else if(node.index == 2){
         while (pingpong == false){
             send_pongping_i2c();
-
+            delay(1000);
         }
     }
 
