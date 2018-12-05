@@ -402,6 +402,7 @@ void receive_i2c_message(int how_many){
             if (is_message_ready_message(c)) {
                 if (node.index == 2) {
                     delay(1000);
+                    // TESTING TODO
                     send_is_ready_i2c_message_node2();
                 }
                 Serial.print("test");
@@ -476,6 +477,7 @@ void consens(){
             send_is_ready_i2c_message(); // send ready message
             delay(1000);
         }
+        Serial.print("INITIALIZED");
     }
     while(true) {
         if (_received_new_data == true){
