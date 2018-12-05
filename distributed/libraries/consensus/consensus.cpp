@@ -403,7 +403,6 @@ void receive_i2c_message(int how_many){
         }
         // NOT TEST. RUN CODE
     } else if (test == false) { // Initializing
-        //TEST
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
@@ -420,8 +419,33 @@ void receive_i2c_message(int how_many){
                     is_other_node_ready = true;
                 }
             }
+        }else { // else run normal code
+            int i = 0;
+            char _d_1[8];
+            char _d_2[8];
+            bool _semicolon = false;
+            while (Wire.available() > 0) { // check data on BUS
+                char c = Wire.read(); //receive byte at I2S BUS
+                
+                if (c == ';') {
+                    _semicolon = true;
+                    i = 0;
+                    continue;
+                }
+                if (_semicolon) {
+                    _d_2[i] = c;
+                } else {
+                    _d_1[i] = c;
+                }
+                i = i + 1;
+            }
+            
+            // add data from _d_1 and _d_2 to node.
+            node.dim_neighbour[0] = atof(_d_1);
+            node.dim_neighbour[1] = atof(_d_2);
+            _received_new_data = true;
         }
-        //END TEST
+        
         /*
         if (not is_other_node_ready) {
             char c;
@@ -437,32 +461,9 @@ void receive_i2c_message(int how_many){
                 is_other_node_ready = true;
             }
 
-         }*/} else { // else run normal code
-            int i = 0;
-            char _d_1[8];
-            char _d_2[8];
-            bool _semicolon = false;
-            while (Wire.available() > 0) { // check data on BUS
-                char c = Wire.read(); //receive byte at I2S BUS
+         }*/
 
-                if (c == ';') {
-                    _semicolon = true;
-                    i = 0;
-                    continue;
-                }
-                if (_semicolon) {
-                    _d_2[i] = c;
-                } else {
-                    _d_1[i] = c;
-                }
-                i = i + 1;
-            }
-
-            // add data from _d_1 and _d_2 to node.
-            node.dim_neighbour[0] = atof(_d_1);
-            node.dim_neighbour[1] = atof(_d_2);
-            _received_new_data = true;
-        }
+    }
     }
 
 void iterate() {
@@ -500,11 +501,9 @@ void iterate() {
 void consens(){
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
-            // delay(1000);
             send_is_ready_i2c_message_node1(); // send ready message
             delay(1000);
         }
-
     }
     Serial.print("INITIALIZED");
     while(true) {
