@@ -404,12 +404,13 @@ void receive_i2c_message(int how_many){
         // NOT TEST. RUN CODE
     } else if (test == false) { // Initializing
         //TEST
+        char c;
         while (Wire.available() > 0) { // check data on BUS
-            char c = Wire.read();
+            c = Wire.read();
+            Serial.println(c);
         }
         if (is_other_node_ready == false) {
             if (node.index == 2) {
-                
                 if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
                     is_other_node_ready = true;
                     send_is_ready_i2c_message_node2();
