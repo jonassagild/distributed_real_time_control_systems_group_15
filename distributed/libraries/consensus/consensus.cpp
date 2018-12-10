@@ -291,9 +291,7 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     k_12 = _k_12;
     k_21 = _k_21;
     k_22 = _k_22;
-    Serial.println("Init gains 1");
-    delay(100);
-    initailize_gains(_index);
+
     
     // lower bound illuminance. double l1 = 80, l2 = 270;
     l = _l;
@@ -310,6 +308,10 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     Wire.begin(_i2c_master_address);
     Wire.onReceive(receive_i2c_message); //event handler
     TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
+    
+    Serial.println("Init gains 1");
+    delay(100);
+    initailize_gains(_index);
     
     initialize_node(_index);
 }
