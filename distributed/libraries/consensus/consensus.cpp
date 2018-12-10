@@ -448,14 +448,16 @@ double iterate(){
 
     Serial.println("Ny runde");
     
-    Serial.print("node.node.d[0] =");
+    Serial.println("d[0] and d[1]=");
     Serial.println(node.d[0]);
-    Serial.print("node.dim_neighbour[0] =");
+    Serial.println(node.d[1]);
+    Serial.println("node.dim_neighbour[0] =");
     Serial.println(node.dim_neighbour[0]);
-    
-    Serial.print("node.d_av[0] =");
+    Serial.println(node.dim_neighbour[1]);
+    Serial.println("node.d_av[0] =");
     Serial.println(node.d_av[0]);
-    Serial.println(" ");
+    Serial.println(node.d_av[1]);
+    Serial.println();
     
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
