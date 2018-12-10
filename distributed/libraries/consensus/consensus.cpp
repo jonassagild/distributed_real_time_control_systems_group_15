@@ -291,7 +291,7 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     k_12 = _k_12;
     k_21 = _k_21;
     k_22 = _k_22;
-
+    node.index = _index
     
     // lower bound illuminance. double l1 = 80, l2 = 270;
     l = _l;
@@ -319,13 +319,11 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
 void initialize_node(int index){
     // initialize node values
     if (index == 1) {
-        node.index = 1;
         node.k[0] = k_11;
         node.k[1] = k_12;
         node.m = node.n - pow(k_11, 2);
 
     } else {
-        node.index = 2;
         node.k[0] = k_21;
         node.k[1] = k_22;
         node.m = node.n - pow(k_22, 2);
@@ -395,12 +393,17 @@ void receive_i2c_message(int how_many){
         }
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
-                node2_ready_to_set_gain = true;
+                delay(1000);
+                k_21 = analogRead(6);
+                is_coupling_gains_set = true;
+                node1_ready_to_set_gain = true;
             }
             
         }else{
             if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
-                node1_ready_to_set_gain = true;
+                delay(1000);
+                k_12 = analogRead(6);
+                is_coupling_gains_set = true;
             }
         }
     }
@@ -509,10 +512,10 @@ void consens(){
 }
 
 void initailize_gains(int index){
+    
     Serial.println("Init gains 2");
     if(index == 1){
         Serial.println("Init gains 3");
-        delay(100);
         analogWrite(6, 255); // Light up node 1.
         
         Wire.beginTransmission(_i2c_slave_address);
@@ -522,6 +525,25 @@ void initailize_gains(int index){
         k_11 = analogRead(6);
         Serial.print(k_11);
         delay(1000);
+        analogWrite(6, 0);
+        return;
+    }
+    
+    // Wait until gain is set in node 1
+    while(node1_ready_to_set_gain==false){
+        }
+    
+    analogWrite(6, 255);
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write('Y');
+    Wire.endTransmission();
+    delay(1000);
+    k_22 = analogRead(6);
+    Serial.println(k_22);
+    delay(1000);
+    analogWrite(6, 0);
+    
+    /*
     }
     if(index == 1 &&  node1_ready_to_set_gain){
         delay(100);
@@ -545,5 +567,6 @@ void initailize_gains(int index){
         Serial.print(k_22);
         analogWrite(6, 0);
     }
+     */
     
 }
