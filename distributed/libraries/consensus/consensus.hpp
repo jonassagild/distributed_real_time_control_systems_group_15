@@ -93,5 +93,5 @@ void send_pongping_i2c();
 void test_pingpong();
 void send_is_ready_i2c_message_node2();
 void send_is_ready_i2c_message();
-
+void initailize_gains(int index);
 #endif /* consensus_hpp */

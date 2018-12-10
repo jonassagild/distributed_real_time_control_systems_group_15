@@ -8,7 +8,6 @@
 
 #include "consensus.hpp"
 
-
 double k_11, k_12, k_21, k_22; // K – Coupling matrix (dim 2 by 2)
 double l; // l – columns vector with lower bound illuminances (dim n)
 double o; // o – columns vector of external illuminances (dim n)
@@ -22,11 +21,14 @@ int _i2c_slave_address = 0;
 // bool
 volatile bool is_other_node_ready = false;
 volatile bool send_is_ready_node2 = false;
+//TEST
+volatile bool is_coupling_gains_set = false;
+volatile bool node2_ready_to_set_gain = false;
+volatile bool node1_ready_to_set_gain = false;
+
+
 // Declare node
 Node node;
-
-// TEST PINGPONG
-volatile bool pingpong = false;
 
 /* START help methods */
 double vectorNorm(double vector[]) {
@@ -289,6 +291,10 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     k_12 = _k_12;
     k_21 = _k_21;
     k_22 = _k_22;
+    Serial.println("Init gains 1");
+    delay(100);
+    initailize_gains(_index);
+    
     // lower bound illuminance. double l1 = 80, l2 = 270;
     l = _l;
     // external illuminance double o1 = 50, o2 = 50;
@@ -380,8 +386,24 @@ void send_is_ready_i2c_message_node2(){
 
 void receive_i2c_message(int how_many){
     
+    if (is_coupling_gains_set == false){
+        char c;
+        while (Wire.available() > 0) { // check data on BUS
+            c = Wire.read();
+        }
+        if (node.index == 2) {
+            if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
+                node2_ready_to_set_gain = true;
+            }
+            
+        }else{
+            if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
+                node1_ready_to_set_gain = true;
+            }
+        }
+    }
     // check if message is ready signal
-    if (is_other_node_ready == false) {
+    else if (is_other_node_ready == false) {
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
@@ -416,34 +438,12 @@ void receive_i2c_message(int how_many){
             }
             i = i + 1;
         }
-        /*
-        for (int i = 0; i<8; i++) {
-            //Serial.print(_d_1[i]);
-        }
-         */
         // add data from _d_1 and _d_2 to node.
         node.dim_neighbour[0] = atof(_d_1);
         node.dim_neighbour[1] = atof(_d_2);
         _received_new_data = true;
     }
-        /*
-        if (not is_other_node_ready) {
-            char c;
-            while (Wire.available() > 0) { // check data on BUS
-                c = Wire.read(); //receive byte at I2S BUS
-            }
-            if (is_message_ready_message(c)) {
-                if (node.index == 2) {
-                    delay(1000);
-                    // TESTING TODO
-                    send_is_ready_i2c_message_node2();
-                }
-                is_other_node_ready = true;
-            }
-
-         }*/
-
-    }
+}
 
 double iterate(){
     // update averages
@@ -456,11 +456,9 @@ double iterate(){
     node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
     node.d_av[1] = (node.d[1]+node.dim_neighbour[1])/2;
 
-
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
-
 
     Serial.println("Ny runde");
     
@@ -477,17 +475,15 @@ double iterate(){
     
     
     send_i2c_message(node.d[0], node.d[1]);
-    
-	//solution.node1 = node.d[0];
-	//solution.node2 = node.d[1];
-	//return solution;
-	
+
+    // Calculate lux to set by controller
 	double _end_lux_set_point = node.k[0]* node.d[0] + node.k[1] * node.d[1];
 	return _end_lux_set_point;
 }
 
 void consens(){
-    double lux;
+    
+    // Initialize nodes
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
@@ -498,6 +494,8 @@ void consens(){
             
         }
     }
+    
+    double lux;
     Serial.print("INITIALIZED");
     while(true) {
         if (_received_new_data == true){
@@ -506,4 +504,44 @@ void consens(){
         }
     }
 
+}
+
+void initailize_gains(int index){
+    Serial.println("Init gains 2");
+    if(index == 1){
+        Serial.println("Init gains 3");
+        delay(100);
+        analogWrite(6, 255); // Light up node 1.
+        
+        Wire.beginTransmission(_i2c_slave_address);
+        Wire.write('X');
+        Wire.endTransmission();
+        delay(3000); // Wait until light is stable
+        k_11 = analogRead(6);
+        Serial.print(k_11);
+        delay(1000);
+    }
+    if(index == 1 &&  node1_ready_to_set_gain){
+        delay(100);
+        analogWrite(6, 0);
+        delay(3000);
+        k_12 = analogRead(6);
+        Serial.print(k_12);
+    }
+    if(index == 2 &&  node2_ready_to_set_gain){
+        delay(3000);
+        k_21 = analogRead(6);
+        Serial.print(k_21);
+        delay(1000);
+        Wire.beginTransmission(_i2c_slave_address);
+        Wire.write('Y');
+        Wire.endTransmission();
+        delay(100);
+        analogWrite(6, 255);
+        delay(3000);
+        k_22 = analogRead(6);
+        Serial.print(k_22);
+        analogWrite(6, 0);
+    }
+    
 }
