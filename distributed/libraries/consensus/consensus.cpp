@@ -20,14 +20,13 @@ int _i2c_master_address = 26;
 int _i2c_slave_address = 0;
 
 // bool
-volatile bool is_other_node_ready = false;
-
+bool is_other_node_ready = false;
 // Declare node
 Node node;
 
 // TEST PINGPONG
 volatile bool pingpong = false;
-bool test = false;
+
 
 
 /* START help methods */
@@ -378,74 +377,50 @@ void send_is_ready_i2c_message_node2(){
 }
 
 void receive_i2c_message(int how_many){
-    // check if message is ready signal
     
-    // TEST RUN PINGPONG
-    if(test == true){
-        if (node.index == 2){
-            char c;
-            while (Wire.available() > 0) { // check data on BUS
-                c = Wire.read(); //receive byte at I2S BUS
-                Serial.print(c);
-                Serial.println();
+    char c;
+    // check if message is ready signal
+    while (Wire.available() > 0) { // check data on BUS
+        c = Wire.read();
+        Serial.println(c);
+    }
+    
+    if (is_other_node_ready == false) {
+        if (node.index == 2) {
+            if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
+                is_other_node_ready = true;
             }
-            if (c == 'X'){
-                pingpong == true;
-            }
-
-        }else{
-            char c;
-            while (Wire.available() > 0) { // check data on BUS
-                c = Wire.read(); //receive byte at I2S BUS
-                Serial.print(c);
-                Serial.println();
+        }else {
+            if (is_message_ready_message_node2(c)){
+                is_other_node_ready = true;
             }
         }
-        // NOT TEST. RUN CODE
-    } else if (test == false) { // Initializing
-        char c;
+    }else { // else run normal code
+        int i = 0;
+        char _d_1[8];
+        char _d_2[8];
+        bool _semicolon = false;
         while (Wire.available() > 0) { // check data on BUS
-            c = Wire.read();
-            Serial.println(c);
-        }
-        if (is_other_node_ready == false) {
-            if (node.index == 2) {
-                if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
-                    is_other_node_ready = true;
-                    send_is_ready_i2c_message_node2();
-                }
-            }else {
-                if (is_message_ready_message_node2(c)){
-                    is_other_node_ready = true;
-                }
-            }
-        }else { // else run normal code
-            int i = 0;
-            char _d_1[8];
-            char _d_2[8];
-            bool _semicolon = false;
-            while (Wire.available() > 0) { // check data on BUS
-                char c = Wire.read(); //receive byte at I2S BUS
-                
-                if (c == ';') {
-                    _semicolon = true;
-                    i = 0;
-                    continue;
-                }
-                if (_semicolon) {
-                    _d_2[i] = c;
-                } else {
-                    _d_1[i] = c;
-                }
-                i = i + 1;
-            }
+            char c = Wire.read(); //receive byte at I2S BUS
             
-            // add data from _d_1 and _d_2 to node.
-            node.dim_neighbour[0] = atof(_d_1);
-            node.dim_neighbour[1] = atof(_d_2);
-            _received_new_data = true;
+            if (c == ';') {
+                _semicolon = true;
+                i = 0;
+                continue;
+            }
+            if (_semicolon) {
+                _d_2[i] = c;
+            } else {
+                _d_1[i] = c;
+            }
+            i = i + 1;
         }
         
+        // add data from _d_1 and _d_2 to node.
+        node.dim_neighbour[0] = atof(_d_1);
+        node.dim_neighbour[1] = atof(_d_2);
+        _received_new_data = true;
+    }
         /*
         if (not is_other_node_ready) {
             char c;
@@ -464,9 +439,8 @@ void receive_i2c_message(int how_many){
          }*/
 
     }
-    }
 
-struct iterate() {
+double iterate(){
     // update averages
 
     node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
@@ -508,6 +482,8 @@ void consens(){
         if (node.index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
             delay(1000);
+        }else if (node.index == 2 && is_other_node_ready == true){
+            send_is_ready_i2c_message_node2();
         }
     }
     Serial.print("INITIALIZED");
