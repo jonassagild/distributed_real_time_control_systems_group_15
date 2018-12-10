@@ -20,12 +20,14 @@ int _i2c_master_address = 26;
 int _i2c_slave_address = 0;
 
 // bool
-bool is_other_node_ready = false;
+volatile bool is_other_node_ready = false;
+volatile bool send_is_ready_node2 = false;
 // Declare node
 Node node;
 
 // TEST PINGPONG
 volatile bool pingpong = false;
+
 
 
 
@@ -389,6 +391,8 @@ void receive_i2c_message(int how_many){
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
                 is_other_node_ready = true;
+                //TEST
+                send_is_ready_node2 = true;
             }
         }else {
             if (is_message_ready_message_node2(c)){
@@ -478,11 +482,12 @@ double iterate(){
 }
 
 void consens(){
+    //Serial.println("HEI");
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
             delay(1000);
-        }else if (node.index == 2 && is_other_node_ready == true){
+        }else if (node.index == 2 && send_is_ready_node2 == true){
             send_is_ready_i2c_message_node2();
         }
     }
