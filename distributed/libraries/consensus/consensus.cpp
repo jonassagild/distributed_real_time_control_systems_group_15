@@ -28,9 +28,6 @@ Node node;
 // TEST PINGPONG
 volatile bool pingpong = false;
 
-
-
-
 /* START help methods */
 double vectorNorm(double vector[]) {
     return pow(vector[0], 2) + pow(vector[1], 2);
@@ -382,8 +379,9 @@ void receive_i2c_message(int how_many){
     
     // check if message is ready signal
     if (is_other_node_ready == false) {
+        char c;
         while (Wire.available() > 0) { // check data on BUS
-            char c = Wire.read();
+            c = Wire.read();
             Serial.print(c);
         }
         if (node.index == 2) {
