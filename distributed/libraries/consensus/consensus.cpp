@@ -270,13 +270,16 @@ Res primal_solve(Node node, double rho){
     }
     
     res.cost_best = cost_best;
+    
+    if(res.d_best0 < 0){
+        res.d_best0 = 0;
+    }
+    if(res.d_best1 < 0){
+        res.d_best1 = 0;
+    }
+    
     res.d_best0 = d_best[0];
     res.d_best1 = d_best[1];
-//    Serial.println("calc costs:");
-//    Serial.print("d_best[0] =");
-//    Serial.print(d_best[0]);
-//    Serial.print("   d_best[1] =");
-//    Serial.println(d_best[1]);
     return res;
 }
 
@@ -501,8 +504,6 @@ void consens(){
             _received_new_data = false;
             lux = iterate();
         }
-        //Serial.print("kjører");
-        delay(1000);
     }
 
 }
