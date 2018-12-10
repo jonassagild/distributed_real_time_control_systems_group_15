@@ -379,7 +379,6 @@ void send_is_ready_i2c_message_node2(){
 }
 
 void receive_i2c_message(int how_many){
-    
     char c;
     // check if message is ready signal
     while (Wire.available() > 0) { // check data on BUS
@@ -399,6 +398,7 @@ void receive_i2c_message(int how_many){
             }
         }
     }else { // else run normal code
+        //Serial.println("Running normal");
         int i = 0;
         char _d_1[8];
         char _d_2[8];
@@ -471,7 +471,7 @@ double iterate(){
     node.d[1] = res.d_best1;
     
     // delay(300);
-    //send_i2c_message(node.d[0], node.d[1]);
+    send_i2c_message(node.d[0], node.d[1]);
 	//solution.node1 = node.d[0];
 	//solution.node2 = node.d[1];
 	//return solution;
@@ -481,7 +481,7 @@ double iterate(){
 }
 
 void consens(){
-    //Serial.println("HEI");
+    double lux;
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
@@ -496,14 +496,13 @@ void consens(){
     while(true) {
         if (_received_new_data == true){
             _received_new_data = false;
-            iterate();
+            lux = iterate();
         }
-        // Serial.print("kjører");
-        // delay(100);
+        //Serial.print("kjører");
+        delay(100);
     }
 
 }
-
 
 void send_pingpong_i2c(){
     Serial.print("pingpong Node 1 send first message \n");
