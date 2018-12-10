@@ -379,17 +379,15 @@ void send_is_ready_i2c_message_node2(){
 }
 
 void receive_i2c_message(int how_many){
-    char c;
-    // check if message is ready signal
-    while (Wire.available() > 0) { // check data on BUS
-        c = Wire.read();
-        Serial.println(c);
-    }
     
+    // check if message is ready signal
     if (is_other_node_ready == false) {
+        while (Wire.available() > 0) { // check data on BUS
+            char c = Wire.read();
+            Serial.print(c);
+        }
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
-                //TEST
                 send_is_ready_node2 = true;
             }
         }else {
@@ -398,7 +396,6 @@ void receive_i2c_message(int how_many){
             }
         }
     }else { // else run normal code
-        //Serial.println("Running normal");
         int i = 0;
         char _d_1[8];
         char _d_2[8];
@@ -418,7 +415,9 @@ void receive_i2c_message(int how_many){
             }
             i = i + 1;
         }
-        
+        for (int i = 0; i<8; i++) {
+            //Serial.print(_d_1[i]);
+        }
         // add data from _d_1 and _d_2 to node.
         node.dim_neighbour[0] = atof(_d_1);
         node.dim_neighbour[1] = atof(_d_2);
@@ -470,7 +469,6 @@ double iterate(){
     node.d[0] = res.d_best0;
     node.d[1] = res.d_best1;
     
-    // delay(300);
     send_i2c_message(node.d[0], node.d[1]);
 	//solution.node1 = node.d[0];
 	//solution.node2 = node.d[1];
@@ -499,40 +497,7 @@ void consens(){
             lux = iterate();
         }
         //Serial.print("kjører");
-        delay(100);
+        delay(1000);
     }
-
-}
-
-void send_pingpong_i2c(){
-    Serial.print("pingpong Node 1 send first message \n");
-    Wire.beginTransmission(_i2c_slave_address);
-    Wire.write('X');
-    //Serial.print("before \n");
-    Wire.endTransmission(); // Crash here!
-    //Serial.print("after \n");
-}
-
-void send_pongping_i2c(){
-    Serial.print("pingpong Node 2 send first message \n");
-    Wire.beginTransmission(_i2c_slave_address);
-    Wire.write('Y');
-    //Serial.print("before \n");
-    Wire.endTransmission(); // Crash here!
-    //Serial.print("after \n");
-}
-
-void test_pingpong(){
-    delay(1000);
-    if (node.index == 1){
-        send_pingpong_i2c();
-    }
-    else if(node.index == 2){
-        while (pingpong == false){
-            send_pongping_i2c();
-            delay(1000);
-        }
-    }
-
 
 }
