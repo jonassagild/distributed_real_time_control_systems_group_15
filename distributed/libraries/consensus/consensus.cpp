@@ -466,7 +466,7 @@ void receive_i2c_message(int how_many){
     }
     }
 
-void iterate() {
+struct iterate() {
     // update averages
 
     node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
@@ -494,8 +494,13 @@ void iterate() {
     node.d[1] = res.d_best1;
     
     // delay(300);
-    send_i2c_message(node.d[0], node.d[1]);
-    
+    //send_i2c_message(node.d[0], node.d[1]);
+	//solution.node1 = node.d[0];
+	//solution.node2 = node.d[1];
+	//return solution;
+	
+	double _end_lux_set_point = node.k[0]* node.d[0] + node.k[1] * node.d[1];
+	return _end_lux_set_point;
 }
 
 void consens(){

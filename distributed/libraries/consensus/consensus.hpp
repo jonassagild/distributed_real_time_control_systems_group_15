@@ -80,7 +80,7 @@ double *copy_vector(double *vector);
 double *vector_addition(double* vector1, double* vector2);
 double *vector_subtraction(double* vector1, double* vector2);
 double inner_product(double* vector1, double* vector2);
-void iterate();
+double iterate();
 void send_i2c_message(double d1, double d2);
 void receive_i2c_message(int how_many);
 
