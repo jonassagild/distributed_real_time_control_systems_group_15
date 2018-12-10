@@ -413,9 +413,11 @@ void receive_i2c_message(int how_many){
             }
             i = i + 1;
         }
+        /*
         for (int i = 0; i<8; i++) {
             //Serial.print(_d_1[i]);
         }
+         */
         // add data from _d_1 and _d_2 to node.
         node.dim_neighbour[0] = atof(_d_1);
         node.dim_neighbour[1] = atof(_d_2);
@@ -442,34 +444,37 @@ void receive_i2c_message(int how_many){
 
 double iterate(){
     // update averages
+    
+    Res res;
+    res = primal_solve(node, rho);
+    node.d[0] = res.d_best0;
+    node.d[1] = res.d_best1;
 
     node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
     node.d_av[1] = (node.d[1]+node.dim_neighbour[1])/2;
 
-    Serial.println("Ny runde");
-    
-    Serial.println("d[0] and d[1]=");
-    Serial.println(node.d[0]);
-    Serial.println(node.d[1]);
-    Serial.println("node.dim_neighbour[0] =");
-    Serial.println(node.dim_neighbour[0]);
-    Serial.println(node.dim_neighbour[1]);
-    Serial.println("node.d_av[0] =");
-    Serial.println(node.d_av[0]);
-    Serial.println(node.d_av[1]);
-    Serial.println();
-    
+
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
 
-    Res res;
 
-    res = primal_solve(node, rho);
-    node.d[0] = res.d_best0;
-    node.d[1] = res.d_best1;
+    Serial.println("Ny runde");
+    
+    Serial.println("dim");
+    Serial.println(node.d[0]);
+    Serial.println(node.d[1]);
+    Serial.println("dim_neighbour");
+    Serial.println(node.dim_neighbour[0]);
+    Serial.println(node.dim_neighbour[1]);
+    Serial.println("dim_average");
+    Serial.println(node.d_av[0]);
+    Serial.println(node.d_av[1]);
+    Serial.println(" ");
+    
     
     send_i2c_message(node.d[0], node.d[1]);
+    
 	//solution.node1 = node.d[0];
 	//solution.node2 = node.d[1];
 	//return solution;
