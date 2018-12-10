@@ -291,7 +291,7 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     k_12 = _k_12;
     k_21 = _k_21;
     k_22 = _k_22;
-    node.index = _index
+    node.index = _index;
     
     // lower bound illuminance. double l1 = 80, l2 = 270;
     l = _l;
@@ -401,6 +401,7 @@ void receive_i2c_message(int how_many){
             
         }else{
             if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
+                analogWrite(6, 0);
                 delay(1000);
                 k_12 = analogRead(6);
                 is_coupling_gains_set = true;
@@ -525,7 +526,6 @@ void initailize_gains(int index){
         k_11 = analogRead(6);
         Serial.print(k_11);
         delay(1000);
-        analogWrite(6, 0);
         return;
     }
     
