@@ -514,7 +514,7 @@ void initailize_gains(int index){
             send_is_ready_i2c_message_node2();
         }
     }
-
+    Serial.print("is_other_node_ready")
     
     if(index == 1){
         analogWrite(6, 255); // Light up node 1.
@@ -548,5 +548,6 @@ void initailize_gains(int index){
     
     // set false after node ready to set gains for check if node ready for consensus
     is_other_node_ready = false;
+    send_is_ready_node2 = false;
     
 }
