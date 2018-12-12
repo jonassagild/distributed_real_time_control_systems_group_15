@@ -309,10 +309,7 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     Wire.onReceive(receive_i2c_message); //event handler
     TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
     
-    Serial.println("Init gains 1");
-    delay(100);
     initailize_gains(_index);
-    Serial.println("Init gains 4");
     initialize_node(_index);
 }
 
@@ -405,7 +402,6 @@ void receive_i2c_message(int how_many){
         }else{
             Serial.println(c);
             if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
-                analogWrite(6, 0);
                 delay(1000);
                 k_12 = analogRead(6);
                 Serial.print("k_12 = ");
@@ -520,34 +516,34 @@ void consens(){
 
 void initailize_gains(int index){
     if(index == 1){
-        Serial.println("Init gains 3");
         analogWrite(6, 255); // Light up node 1.
-        
         Wire.beginTransmission(_i2c_slave_address);
         Wire.write('X');
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
-        k_11 = analogRead(6);
         Serial.print("k_11 = ");
+        k_11 = analogRead(6);
         Serial.print(k_11);
-        return;
+        analogWrite(6, 0);
+        //return;
     }
     Serial.println("HEI");
-    // Wait until gain is set in node 1
-    while(node1_ready_to_set_gain==false){
-    }
-    Serial.println("Ho");
-    analogWrite(6, 255);
-    Wire.beginTransmission(_i2c_slave_address);
-    Wire.write('Y');
-    Wire.endTransmission();
-    delay(1000);
-    Serial.print("k_22 = ");
-    k_22 = analogRead(6);
-    Serial.println(k_22);
-    delay(1000);
-    analogWrite(6, 0);
     
+    if( index == 2){
+        // Wait until gain is set in node 1
+        while(node1_ready_to_set_gain==false){
+        }
+        delay(3000);
+        analogWrite(6, 255);
+        Wire.beginTransmission(_i2c_slave_address);
+        Wire.write('Y');
+        Wire.endTransmission();
+        delay(1000);
+        Serial.print("k_22 = ");
+        k_22 = analogRead(6);
+        Serial.println(k_22);
+        analogWrite(6, 0);
+    }
     /*
     }
     if(index == 1 &&  node1_ready_to_set_gain){
