@@ -20,9 +20,8 @@ int _i2c_slave_address = 0;
 
 // bool
 volatile bool is_other_node_ready = false;
-volatile bool send_is_ready_node2 = false;
 volatile bool is_other_node_ready_to_set_gain = false;
-volatile bool send_is_ready_node2_to_set_gain = false;
+volatile bool send_is_ready_node2 = false;
 //TEST
 volatile bool is_coupling_gains_set = false;
 volatile bool node2_ready_to_set_gain = false;
@@ -389,7 +388,7 @@ void receive_i2c_message(int how_many){
         }
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
-                send_is_ready_node2_to_set_gain = true;
+                send_is_ready_node2 = true;
             }
         }else {
             if (is_message_ready_message_node2(c)){
@@ -494,6 +493,7 @@ double iterate(){
 
 double consens(){
     // Initialize nodes
+    
     Serial.println("Check other node");
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
@@ -512,10 +512,13 @@ double consens(){
             _received_new_data = false;
             iterations++;
             lux = iterate();
-        }else if (iterations == 20){
+        }else if (iterations == 50){
             break;
         }
     }
+    // set to default to next round?
+    //is_other_node_ready = false;
+    //send_is_ready_node2 = false;
     return lux;
 }
 
