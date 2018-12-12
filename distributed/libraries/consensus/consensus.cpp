@@ -506,6 +506,7 @@ void consens(){
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
+            delay(1000);
         }else if (node.index == 2 && send_is_ready_node2 == true){
             is_other_node_ready = true;
             send_is_ready_i2c_message_node2();
@@ -527,6 +528,7 @@ void initailize_gains(int index){
     while (is_other_node_ready_to_set_gain == false){ // wait until node1 is ready
         if (index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
+            delay(1000);
         }else if (index == 2 && send_is_ready_node2 == true){
             is_other_node_ready_to_set_gain = true;
             send_is_ready_i2c_message_node2();
@@ -550,7 +552,7 @@ void initailize_gains(int index){
         // Wait until gain is set in node 1
         while(node1_ready_to_set_gain==false){
         }
-        delay(3000);
+        delay(5000);
         analogWrite(6, 255);
         Wire.beginTransmission(_i2c_slave_address);
         Wire.write('Y');
