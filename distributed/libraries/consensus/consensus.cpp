@@ -479,9 +479,7 @@ double iterate(){
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
-    
-    Serial.println("Ny runde");
-    
+    /*
     Serial.println("dim");
     Serial.println(node.d[0]);
     Serial.println(node.d[1]);
@@ -489,6 +487,7 @@ double iterate(){
     Serial.println(node.dim_neighbour[0]);
     Serial.println(node.dim_neighbour[1]);
     Serial.println("dim_average");
+    */
     Serial.println(node.d_av[0]);
     Serial.println(node.d_av[1]);
     Serial.println(" ");
