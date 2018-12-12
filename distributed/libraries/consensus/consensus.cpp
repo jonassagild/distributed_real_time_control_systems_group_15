@@ -389,7 +389,6 @@ void receive_i2c_message(int how_many){
             c = Wire.read();
         }
         if (node.index == 2) {
-            Serial.println(c);
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
                 delay(1000);
                 k_21 = analogRead(6);
@@ -400,7 +399,6 @@ void receive_i2c_message(int how_many){
             }
             
         }else{
-            Serial.println(c);
             if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
                 delay(1000);
                 k_12 = analogRead(6);
@@ -511,7 +509,6 @@ void consens(){
             lux = iterate();
         }
     }
-
 }
 
 void initailize_gains(int index){
@@ -524,12 +521,11 @@ void initailize_gains(int index){
         Serial.print("k_11 = ");
         k_11 = analogRead(6);
         Serial.print(k_11);
+        delay(1000); // Wait until read
         analogWrite(6, 0);
-        //return;
     }
-    Serial.println("HEI");
     
-    if( index == 2){
+    if(index == 2){
         // Wait until gain is set in node 1
         while(node1_ready_to_set_gain==false){
         }
@@ -538,10 +534,11 @@ void initailize_gains(int index){
         Wire.beginTransmission(_i2c_slave_address);
         Wire.write('Y');
         Wire.endTransmission();
-        delay(1000);
+        delay(1000); // Wait until light is stable
         Serial.print("k_22 = ");
         k_22 = analogRead(6);
         Serial.println(k_22);
+        delay(1000); // Wait until read
         analogWrite(6, 0);
     }
     /*
