@@ -312,7 +312,7 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     Serial.println("Init gains 1");
     delay(100);
     initailize_gains(_index);
-    
+    Serial.println("Init gains 4");
     initialize_node(_index);
 }
 
@@ -465,7 +465,7 @@ double iterate(){
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
-
+    /*
     Serial.println("Ny runde");
     
     Serial.println("dim");
@@ -478,7 +478,7 @@ double iterate(){
     Serial.println(node.d_av[0]);
     Serial.println(node.d_av[1]);
     Serial.println(" ");
-    
+    */
     
     send_i2c_message(node.d[0], node.d[1]);
 
@@ -513,8 +513,6 @@ void consens(){
 }
 
 void initailize_gains(int index){
-    
-    Serial.println("Init gains 2");
     if(index == 1){
         Serial.println("Init gains 3");
         analogWrite(6, 255); // Light up node 1.
@@ -528,11 +526,11 @@ void initailize_gains(int index){
         delay(1000);
         return;
     }
-    
+    Serial.println("HEI");
     // Wait until gain is set in node 1
     while(node1_ready_to_set_gain==false){
-        }
-    
+    }
+    Serial.println("Ho");
     analogWrite(6, 255);
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write('Y');
