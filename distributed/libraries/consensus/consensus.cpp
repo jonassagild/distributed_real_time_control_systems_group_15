@@ -509,15 +509,15 @@ void consens(){
 void initailize_gains(int index){
     // Initialize nodes
     while (is_other_node_ready == false){ // wait until node1 is ready
-        if (node.index ==  1) {
+        if (index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
             delay(1000);
-        }else if (node.index == 2 && send_is_ready_node2 == true){
+        }else if (index == 2 && send_is_ready_node2 == true){
             is_other_node_ready = true;
             send_is_ready_i2c_message_node2();
         }
     }
-    is_other_node_ready = false;
+
     
     if(index == 1){
         analogWrite(6, 255); // Light up node 1.
@@ -552,4 +552,8 @@ void initailize_gains(int index){
     Serial.println(k_21);
     Serial.print("k_22 = ");
     Serial.println(k_22);
+    
+    // set false after node ready to set gains for check if node ready for consensus
+    is_other_node_ready = false;
+    
 }
