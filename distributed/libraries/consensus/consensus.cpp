@@ -404,7 +404,7 @@ void receive_i2c_message(int how_many){
         }
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
-                delay(2000);
+                delay(1000);
                 double k_21_a = analogRead(1);
 				k_21 = pow(10, (-0.0018*k_21_a + 4.9653 - 5.0998) / (-0.5871)) / 100;
                 Serial.print("k_21 = ");
@@ -414,7 +414,7 @@ void receive_i2c_message(int how_many){
             }
         }else{
             if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
-                delay(2000);
+                delay(1000);
                 double k_12_a = analogRead(1);
 				k_12= pow(10, (-0.0022*k_12_a + 5.0668 - 5.0965) / (-0.3103))/100;
                 Serial.print("k_12 = ");
@@ -537,12 +537,12 @@ void initailize_gains(int index){
         Wire.beginTransmission(_i2c_slave_address);
         Wire.write('X');
         Wire.endTransmission();
-        delay(2000); // Wait until light is stable
+        delay(1000); // Wait until light is stable
         double k_11_a = analogRead(1);
 		k_11 = pow(10, (-0.0022*k_11_a + 5.0668 - 5.0965) / (-0.3103))/100;
         Serial.print("k_11 = ");
         Serial.println(k_11);
-        delay(2000); // Wait until read
+        delay(1000); // Wait until read
         analogWrite(6, 0);
     }
     
@@ -550,17 +550,17 @@ void initailize_gains(int index){
         // Wait until gain is set in node 1
         while(node1_ready_to_set_gain==false){
         }
-        delay(5000);
+        delay(3000);
         analogWrite(6, 255);
         Wire.beginTransmission(_i2c_slave_address);
         Wire.write('Y');
         Wire.endTransmission();
-        delay(2000); // Wait until light is stable
+        delay(1000); // Wait until light is stable
         double k_22_a = analogRead(1);
 		k_22 = pow(10, (-0.0018*k_22_a + 4.9653 - 5.0998) / (-0.5871)) /100;
         Serial.print("k_22 = ");
         Serial.println(k_22);
-        delay(2000); // Wait until read
+        delay(1000); // Wait until read
         analogWrite(6, 0);
     }
     
