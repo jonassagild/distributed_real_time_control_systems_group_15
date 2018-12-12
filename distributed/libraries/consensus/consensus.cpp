@@ -362,9 +362,7 @@ void send_is_ready_i2c_message_node1(){
     Serial.print("NODE1 sending\n");
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write('X');
-    Serial.print("before \n");
     Wire.endTransmission(); // Crash here!
-    Serial.print("after \n");
 
 }
 
@@ -372,9 +370,7 @@ void send_is_ready_i2c_message_node2(){
     Serial.print("NODE2 sending\n");
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write('Y');
-    Serial.print("before \n");
     Wire.endTransmission(); // Crash here!
-    Serial.print("after \n");
 
 }
 
@@ -399,7 +395,6 @@ void receive_i2c_message(int how_many){
         
         // check if coupling gains are set
     }else if (is_coupling_gains_set == false){
-        Serial.println("Set coupling gain");
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
@@ -512,7 +507,7 @@ void consens(){
         }
     }
     double lux;
-    Serial.print("INITIALIZED");
+    Serial.print("Start Consensus");
     while(true) {
         if (_received_new_data == true){
             _received_new_data = false;
