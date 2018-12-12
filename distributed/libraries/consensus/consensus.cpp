@@ -491,6 +491,7 @@ double iterate(){
 
 double consens(){
     // Initialize nodes
+    /*
     Serial.println("Check other node");
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
@@ -500,6 +501,7 @@ double consens(){
             send_is_ready_i2c_message_node2();
         }
     }
+    */
     
     Serial.println("Start Consensus");
     double lux;
@@ -510,7 +512,7 @@ double consens(){
             _received_new_data = false;
             iterations++;
             lux = iterate();
-        }else if (iterations == 20){
+        }else if (iterations == 50){
             break;
         }
     }
