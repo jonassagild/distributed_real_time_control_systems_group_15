@@ -514,12 +514,13 @@ double consens(){
     while(true) {
         if (_received_new_data == true){
             _received_new_data = false;
+            iterations++;
             lux = iterate();
             delay(500);
         }else if (iterations == 5){
             break;
         }
-        iterations++;
+        
     }
     return lux;
 }
