@@ -512,7 +512,7 @@ void consens(){
         if (_received_new_data == true){
             _received_new_data = false;
             lux = iterate();
-            delay(2000);
+            delay(500);
         }
     }
 }
@@ -558,5 +558,10 @@ void initailize_gains(int index){
         delay(2000); // Wait until read
         analogWrite(6, 0);
     }
+    
+    k_11 = 2;
+    k_12 = 1;
+    k_21 = 1;
+    k_22 = 2;
     
 }
