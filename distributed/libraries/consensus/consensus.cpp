@@ -463,13 +463,11 @@ void receive_i2c_message(int how_many){
 }
 
 double iterate(){
-    // update averages
-    
     Res res;
     res = primal_solve(node, rho);
     node.d[0] = res.d_best0;
     node.d[1] = res.d_best1;
-
+    // update averages
     node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
     node.d_av[1] = (node.d[1]+node.dim_neighbour[1])/2;
 
@@ -497,7 +495,7 @@ double iterate(){
 	return _end_lux_set_point;
 }
 
-void consens(){
+double consens(){
     // Initialize nodes
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
@@ -508,15 +506,22 @@ void consens(){
             send_is_ready_i2c_message_node2();
         }
     }
-    double lux;
+    
     Serial.print("Start Consensus");
+    double lux;
+    int iterations = 0;
+    
     while(true) {
         if (_received_new_data == true){
             _received_new_data = false;
             lux = iterate();
             delay(500);
+        }else if (iterations == 5){
+            break;
         }
+        iterations++;
     }
+    return lux;
 }
 
 void initailize_gains(int index){
