@@ -26,13 +26,13 @@ public:
      
      Constructs the Controller object.
     */
-    Controller(bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, int number_of_measure_points);
+    Controller(bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, int index);
     
     /*
      control
      Starts a loop that will control the LED. The control will quit after 300 iterations, or the value of number_of_measure_points * iterations_between_measurement.
      */
-    void control();
+    void control(int index);
     
     /*
      set_i2c

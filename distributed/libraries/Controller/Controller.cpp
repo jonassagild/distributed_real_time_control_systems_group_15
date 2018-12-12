@@ -10,7 +10,7 @@
 #include "consensus.hpp"
 
 
-Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, int number_of_measure_points){
+Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, int index){
     // set internal parameters
     _feedforward = feedforward;
     _feedback = feedback;
@@ -25,15 +25,19 @@ Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, fl
     // wait for LDR (and LED) to stabilize
     delay(100000);
     
+    if (index == 1){
+        _anread_set_point = pow(10, (-0.7880*_end_lux_set_point + 6.0989 - 5.1786 ) / (-0.0023));
+    }else{
+        _anread_set_point = pow(10, (-0.7534*_end_lux_set_point + 5.7523 - 5.0762 ) / (-0.0020));
+    }
     // calculate anread_set_point
-    _anread_set_point = (log10(_end_lux_set_point)*(-0.7757)+0.6316)/(-0.0021);
+    //_anread_set_point = (log10(_end_lux_set_point)*(-0.5871)+5.099-4.965)/(-0.0018);
     
     // set values for optimization
     _k_integral = _k_p*_k_i*_t*0.5;
 }
 
-
-void Controller::control() {
+void Controller::control(int index) {
     _i = 0;
     while(true){
         _i = _i + 1;
@@ -124,7 +128,7 @@ void Controller::control() {
 
         // calculates total pwm
         _pwm_total_duty = _pwm_backward_duty + _pwm_forward_duty; // Total duty
-        
+        //Serial.println(_pwm_total_duty);
         // PWM overflow prevention.
         if (_pwm_total_duty > 255){
             _pwm_total_duty = 255;
@@ -159,8 +163,11 @@ void Controller::control() {
         analogWrite(_led_pin, _pwm_total_duty);
 
         _end_lux_set_point = consens();
-		
-		_anread_set_point = (log10(_end_lux_set_point)*(-0.7757) + 0.6316) / (-0.0021);
+        if (index == 1){
+            _anread_set_point = pow(10, (-0.7880*_end_lux_set_point + 6.0989 - 5.1786 ) / (-0.0023));
+        }else{
+            _anread_set_point = pow(10, (-0.7534*_end_lux_set_point + 5.7523 - 5.0762 ) / (-0.0020));
+        }
     }
 }
 
@@ -178,7 +185,7 @@ void Controller::enable_i2c(int master_address, int slave_address){
 static void Controller::receive_i2c_message(int how_many){
     while (Wire.available()> 0) { // check data on BUS
         char c = Wire.read(); //receive byte at I2C BUS
-        Serial.print("the program shut down");
+        Serial.println("the program shut down");
         if (c == 's'){
             exit(0);
         }
