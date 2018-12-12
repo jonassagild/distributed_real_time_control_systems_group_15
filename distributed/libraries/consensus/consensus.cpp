@@ -515,7 +515,7 @@ double consens(){
             _received_new_data = false;
             iterations++;
             lux = iterate();
-        }else if (iterations == 10){
+        }else if (iterations == 20){
             break;
         }
     }
