@@ -466,7 +466,7 @@ double iterate(){
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
-    /*
+    
     Serial.println("Ny runde");
     
     Serial.println("dim");
@@ -479,7 +479,7 @@ double iterate(){
     Serial.println(node.d_av[0]);
     Serial.println(node.d_av[1]);
     Serial.println(" ");
-    */
+    
     
     send_i2c_message(node.d[0], node.d[1]);
 
@@ -489,7 +489,16 @@ double iterate(){
 }
 
 void consens(){
-    
+    // Initialize nodes
+    while (is_other_node_ready == false){ // wait until node1 is ready
+        if (node.index ==  1) {
+            send_is_ready_i2c_message_node1(); // send ready message
+            delay(1000);
+        }else if (node.index == 2 && send_is_ready_node2 == true){
+            is_other_node_ready = true;
+            send_is_ready_i2c_message_node2();
+        }
+    }
     double lux;
     Serial.print("INITIALIZED");
     while(true) {
@@ -501,7 +510,6 @@ void consens(){
 }
 
 void initailize_gains(int index){
-    
     // Initialize nodes
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
@@ -510,9 +518,9 @@ void initailize_gains(int index){
         }else if (node.index == 2 && send_is_ready_node2 == true){
             is_other_node_ready = true;
             send_is_ready_i2c_message_node2();
-            
         }
     }
+    is_other_node_ready = false;
     
     if(index == 1){
         analogWrite(6, 255); // Light up node 1.
