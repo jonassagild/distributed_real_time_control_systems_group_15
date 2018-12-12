@@ -410,8 +410,7 @@ void receive_i2c_message(int how_many){
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
                 delay(1000);
                 k_21 = analogRead(6);
-                Serial.print("k_21 = ");
-                Serial.println(k_21);
+                
                 is_coupling_gains_set = true;
                 node1_ready_to_set_gain = true;
             }
@@ -420,8 +419,6 @@ void receive_i2c_message(int how_many){
             if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
                 delay(1000);
                 k_12 = analogRead(6);
-                Serial.print("k_12 = ");
-                Serial.println(k_12);
                 is_coupling_gains_set = true;
             }
         }
@@ -528,9 +525,7 @@ void initailize_gains(int index){
         Wire.write('X');
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
-        Serial.print("k_11 = ");
         k_11 = analogRead(6);
-        Serial.print(k_11);
         delay(1000); // Wait until read
         analogWrite(6, 0);
     }
@@ -545,36 +540,16 @@ void initailize_gains(int index){
         Wire.write('Y');
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
-        Serial.print("k_22 = ");
         k_22 = analogRead(6);
-        Serial.println(k_22);
         delay(1000); // Wait until read
         analogWrite(6, 0);
     }
-    /*
-    }
-    if(index == 1 &&  node1_ready_to_set_gain){
-        delay(100);
-        analogWrite(6, 0);
-        delay(3000);
-        k_12 = analogRead(6);
-        Serial.print(k_12);
-    }
-    if(index == 2 &&  node2_ready_to_set_gain){
-        delay(3000);
-        k_21 = analogRead(6);
-        Serial.print(k_21);
-        delay(1000);
-        Wire.beginTransmission(_i2c_slave_address);
-        Wire.write('Y');
-        Wire.endTransmission();
-        delay(100);
-        analogWrite(6, 255);
-        delay(3000);
-        k_22 = analogRead(6);
-        Serial.print(k_22);
-        analogWrite(6, 0);
-    }
-     */
-    
+    Serial.print("k_11 = ");
+    Serial.print(k_11);
+    Serial.print("k_12 = ");
+    Serial.println(k_12);
+    Serial.print("k_21 = ");
+    Serial.println(k_21);
+    Serial.print("k_22 = ");
+    Serial.println(k_22);
 }
