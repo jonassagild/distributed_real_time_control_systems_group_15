@@ -19,19 +19,25 @@ void setup() {
   pinMode(led_pin, OUTPUT); 
   
   Serial.begin(115200);
-
+  initialize_system(2, 1, 1, 2, 150, 30, 1, 0.07, 25, 1);  
     // set timer frequency
   // pin = 6, important!
   set_timer_frequency(6, 1);
 
-  initialize_system(2, 1, 1, 2, 150, 30, 1, 0.07, 25, 1);  
+  
 }
 
 void loop() {
+  consens();
+  exit(0);
+
+  
+  /*
 if (Serial.available() > 0) {
       char_read = Serial.read();
-      start_controlling();
+      
   }
+  */
 }
 
 void receiveEvent (int howMany) {
