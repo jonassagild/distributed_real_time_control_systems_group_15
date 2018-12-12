@@ -8,7 +8,7 @@
 
 #include "consensus.hpp"
 
-double k_11, k_12, k_21, k_22; // K – Coupling matrix (dim 2 by 2)
+volatile double k_11, k_12, k_21, k_22; // K – Coupling matrix (dim 2 by 2)
 double l; // l – columns vector with lower bound illuminances (dim n)
 double o; // o – columns vector of external illuminances (dim n)
 double c; // c - the vector of all energy costs
@@ -287,10 +287,6 @@ Res primal_solve(Node node, double rho){
 
 void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_base_address, int _index){
     // Coupling matrix (dim 2 by 2)
-    k_11 = _k_11;
-    k_12 = _k_12;
-    k_21 = _k_21;
-    k_22 = _k_22;
     node.index = _index;
     
     // lower bound illuminance. double l1 = 80, l2 = 270;
@@ -388,7 +384,7 @@ void receive_i2c_message(int how_many){
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
-            Serial.print(c);
+            Serial.println(c);
         }
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
@@ -409,16 +405,16 @@ void receive_i2c_message(int how_many){
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
                 delay(1000);
-                k_21 = analogRead(6);
-                
+                k_21 = analogRead(1);
                 is_coupling_gains_set = true;
                 node1_ready_to_set_gain = true;
             }
-            
+        Serial.println("HEI2");
         }else{
             if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
                 delay(1000);
-                k_12 = analogRead(6);
+                Serial.println("HEI");
+                k_12 = analogRead(1);
                 is_coupling_gains_set = true;
             }
         }
@@ -502,6 +498,7 @@ void consens(){
         if (_received_new_data == true){
             _received_new_data = false;
             lux = iterate();
+            delay(1000);
         }
     }
 }
@@ -525,7 +522,7 @@ void initailize_gains(int index){
         Wire.write('X');
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
-        k_11 = analogRead(6);
+        k_11 = analogRead(1);
         delay(1000); // Wait until read
         analogWrite(6, 0);
     }
@@ -540,18 +537,14 @@ void initailize_gains(int index){
         Wire.write('Y');
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
-        k_22 = analogRead(6);
+        k_22 = analogRead(1);
         delay(1000); // Wait until read
         analogWrite(6, 0);
     }
     Serial.print("k_11 = ");
-    Serial.print(k_11);
+    Serial.println(k_11);
     Serial.print("k_12 = ");
     Serial.println(k_12);
-    Serial.print("k_21 = ");
-    Serial.println(k_21);
-    Serial.print("k_22 = ");
-    Serial.println(k_22);
     
     // set false after node ready to set gains for check if node ready for consensus
     is_other_node_ready = false;
