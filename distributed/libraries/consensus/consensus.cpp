@@ -20,6 +20,7 @@ int _i2c_slave_address = 0;
 
 // bool
 volatile bool is_other_node_ready = false;
+volatile bool is_other_node_ready_to_set_gain = false;
 volatile bool send_is_ready_node2 = false;
 //TEST
 volatile bool is_coupling_gains_set = false;
@@ -379,8 +380,8 @@ void send_is_ready_i2c_message_node2(){
 
 void receive_i2c_message(int how_many){
 
-    // check if message is ready signal
-    if (is_other_node_ready == false) {
+    // check if message is ready  to set gains signal
+    if (is_other_node_ready_to_set_gain == false) {
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
@@ -392,12 +393,13 @@ void receive_i2c_message(int how_many){
             }
         }else {
             if (is_message_ready_message_node2(c)){
-                is_other_node_ready = true;
+                is_other_node_ready_to_set_gain = true;
             }
         }
         
         // check if coupling gains are set
     }else if (is_coupling_gains_set == false){
+        Serial.println("Set coupling gain");
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
@@ -422,6 +424,22 @@ void receive_i2c_message(int how_many){
                 is_coupling_gains_set = true;
             }
         }
+    }else if (is_other_node_ready == false) {
+        char c;
+        while (Wire.available() > 0) { // check data on BUS
+            c = Wire.read();
+            Serial.println(c);
+        }
+        if (node.index == 2) {
+            if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
+                send_is_ready_node2 = true;
+            }
+        }else {
+            if (is_message_ready_message_node2(c)){
+                is_other_node_ready = true;
+            }
+        }
+    
     }else { // else run normal code
         int i = 0;
         char _d_1[8];
@@ -509,16 +527,15 @@ void consens(){
 
 void initailize_gains(int index){
     // Initialize nodes
-    while (is_other_node_ready == false){ // wait until node1 is ready
+    while (is_other_node_ready_to_set_gain == false){ // wait until node1 is ready
         if (index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
             delay(1000);
         }else if (index == 2 && send_is_ready_node2 == true){
-            is_other_node_ready = true;
+            is_other_node_ready_to_set_gain = true;
             send_is_ready_i2c_message_node2();
         }
     }
-    Serial.print("is_other_node_ready")
     
     if(index == 1){
         analogWrite(6, 255); // Light up node 1.
@@ -549,11 +566,5 @@ void initailize_gains(int index){
         delay(1000); // Wait until read
         analogWrite(6, 0);
     }
-    
-
-    
-    // set false after node ready to set gains for check if node ready for consensus
-    is_other_node_ready = false;
-    send_is_ready_node2 = false;
     
 }
