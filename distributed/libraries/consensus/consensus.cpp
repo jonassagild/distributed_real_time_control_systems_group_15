@@ -496,7 +496,6 @@ double iterate(){
 
 double consens(){
     // Initialize nodes
-    /*
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
@@ -506,7 +505,7 @@ double consens(){
             send_is_ready_i2c_message_node2();
         }
     }
-    */
+    
     Serial.println("Start Consensus");
     double lux;
     int iterations = 0;
@@ -520,6 +519,9 @@ double consens(){
             break;
         }
     }
+    // set to default to next round?
+    is_other_node_ready = false;
+    send_is_ready_node2 = false;
     return lux;
 }
 
