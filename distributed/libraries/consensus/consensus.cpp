@@ -309,8 +309,8 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     initailize_gains(_index);
     initialize_node(_index);
     
-    Serial.println("Starting up in 3 2 1...");
-    delay(3000);
+    //Serial.println("Starting up in 3 2 1...");
+    //delay(3000);
 }
 
 void initialize_node(int index){
@@ -505,7 +505,6 @@ double consens(){
     }
     */
     
-    Serial.println("Start Consensus");
     double lux;
     int iterations = 0;
     
