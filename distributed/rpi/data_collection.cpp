@@ -45,9 +45,9 @@ void DataCollector::handle_message(char msgBuff[], int sz){
 
 	// TODO: save the data based on what is received
 	if(sz > 0) {
-		_db->mux_illuminance.lock();
-		_db->illuminance = _db->illuminance + 1;
-		_db->mux_illuminance.unlock();	
+		_db->mux_illuminance_1.lock();
+		_db->illuminance_1 = _db->illuminance_1 + 1;
+		_db->mux_illuminance_1.unlock();	
 	}
 
 }

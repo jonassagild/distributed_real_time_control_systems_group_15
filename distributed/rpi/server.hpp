@@ -14,13 +14,14 @@
 class server {
     io_service& io;
     tcp::acceptor acceptor;
+    std::shared_ptr<Database> _db;	
 
     void start_accept();
 
     void handle_accept(session* sess, const error_code& ec);
 
 public:
-    server(io_service& io, short port);
+    server(io_service& io, short port, std::shared_ptr <Database> db);
 };
 
 #endif /* server.hpp */

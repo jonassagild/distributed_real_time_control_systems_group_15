@@ -8,23 +8,8 @@
 
 #include "server.hpp"
 
-//int main(int argc, char* argv[]) {
-//    if (argc != 2) {
-//        std::cerr << "usage: server <port> \n";
-//        return 1;
-//    }
-//
-//	
-//    io_service io;
-//    server s(io, std::atoi(argv[1]));
-//    io.run();
-//    return 0;
-//}
-
-
- 
 void server::start_accept() {
-	session* new_sess = new session(io);
+	session* new_sess = new session(io, _db);
         acceptor.async_accept(new_sess -> socket(), boost::bind(&server::handle_accept, this, new_sess, _1)); 
 }
 
@@ -38,7 +23,7 @@ void server::handle_accept(session* sess, const error_code& ec) {
 }
 
 
-server::server(io_service& io, short port): io(io), acceptor(io, tcp::endpoint(tcp::v4(), port)) {
-        start_accept();
+server::server(io_service& io, short port, std::shared_ptr <Database> db): io(io), acceptor(io, tcp::endpoint(tcp::v4(), port)), _db(db) {
+		start_accept();
 }
 

@@ -23,7 +23,7 @@ void initialize_system() {
 	
 	io_service io;
 	const char* port = "17000";	
-	server s(io, std::atoi(port));
+	server s(io, std::atoi(port), db);
 	std::thread server_thread ([&](){io.run();});
 
 	data_collector_thread.join();
