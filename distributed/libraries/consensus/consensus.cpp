@@ -406,6 +406,8 @@ void receive_i2c_message(int how_many){
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
                 delay(1000);
                 k_21 = analogRead(1);
+                Serial.print("k_21 = ");
+                Serial.println(k_21);
                 is_coupling_gains_set = true;
                 node1_ready_to_set_gain = true;
             }
@@ -415,6 +417,8 @@ void receive_i2c_message(int how_many){
                 delay(1000);
                 Serial.println("HEI");
                 k_12 = analogRead(1);
+                Serial.print("k_12 = ");
+                Serial.println(k_12);
                 is_coupling_gains_set = true;
             }
         }
@@ -523,6 +527,8 @@ void initailize_gains(int index){
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
         k_11 = analogRead(1);
+        Serial.print("k_11 = ");
+        Serial.println(k_11);
         delay(1000); // Wait until read
         analogWrite(6, 0);
     }
@@ -538,13 +544,13 @@ void initailize_gains(int index){
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
         k_22 = analogRead(1);
+        Serial.print("k_22 = ");
+        Serial.println(k_22);
         delay(1000); // Wait until read
         analogWrite(6, 0);
     }
-    Serial.print("k_11 = ");
-    Serial.println(k_11);
-    Serial.print("k_12 = ");
-    Serial.println(k_12);
+    
+
     
     // set false after node ready to set gains for check if node ready for consensus
     is_other_node_ready = false;
