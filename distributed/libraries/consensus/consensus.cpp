@@ -480,14 +480,14 @@ double iterate(){
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
 
-    /*Serial.println(node.d_av[0]);
-    Serial.println(node.d_av[1]);
-    Serial.println(" ");
-    */
+    //Serial.println(node.d_av[0]);
+    //Serial.println(node.d_av[1]);
+    //Serial.println(" ");
     send_i2c_message(node.d[0], node.d[1]);
 
     // Calculate lux to set by controller
 	double _end_lux_set_point = node.k[0]* node.d[0] + node.k[1] * node.d[1];
+	//Serial.println(_end_lux_set_point);
 	return _end_lux_set_point;
 }
 

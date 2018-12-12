@@ -26,9 +26,9 @@ Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, fl
     delay(100000);
     
     if (index == 1){
-        _anread_set_point = pow(10, (-0.7880*_end_lux_set_point + 6.0989 - 5.1786 ) / (-0.0023));
+        _anread_set_point = (-0.7880*log(_end_lux_set_point) + 6.0989 - 5.1786 ) / (-0.0023);
     }else{
-        _anread_set_point = pow(10, (-0.7534*_end_lux_set_point + 5.7523 - 5.0762 ) / (-0.0020));
+        _anread_set_point =  (-0.7534*log(_end_lux_set_point) + 5.7523 - 5.0762 ) / (-0.0020);
     }
     // calculate anread_set_point
     //_anread_set_point = (log10(_end_lux_set_point)*(-0.5871)+5.099-4.965)/(-0.0018);
@@ -98,7 +98,6 @@ void Controller::control(int index) {
         if (_feedback) {
             // calculates error
             _err_value = _anread_set_point - _measured_anread;
-            
             // calculates Proportional value
             _p_term = _k_p * _err_value;
             
@@ -164,10 +163,11 @@ void Controller::control(int index) {
 
         _end_lux_set_point = consens();
         if (index == 1){
-            _anread_set_point = pow(10, (-0.7880*_end_lux_set_point + 6.0989 - 5.1786 ) / (-0.0023));
+            _anread_set_point =  (-0.7880*log(_end_lux_set_point) + 6.0989 - 5.1786 ) / (-0.0023);
         }else{
-            _anread_set_point = pow(10, (-0.7534*_end_lux_set_point + 5.7523 - 5.0762 ) / (-0.0020));
+            _anread_set_point =  (-0.7534*log(_end_lux_set_point) + 5.7523 - 5.0762 ) / (-0.0020);
         }
+		Serial.println(_anread_set_point);
     }
 }
 
