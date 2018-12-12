@@ -487,7 +487,6 @@ double iterate(){
     Serial.println(node.d_av[1]);
     Serial.println(" ");
     
-    
     send_i2c_message(node.d[0], node.d[1]);
 
     // Calculate lux to set by controller
@@ -516,11 +515,9 @@ double consens(){
             _received_new_data = false;
             iterations++;
             lux = iterate();
-            delay(500);
-        }else if (iterations == 5){
+        }else if (iterations == 10){
             break;
         }
-        
     }
     return lux;
 }
