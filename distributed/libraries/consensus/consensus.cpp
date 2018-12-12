@@ -382,8 +382,26 @@ void send_is_ready_i2c_message_node2(){
 }
 
 void receive_i2c_message(int how_many){
-    
-    if (is_coupling_gains_set == false){
+
+    // check if message is ready signal
+    if (is_other_node_ready == false) {
+        char c;
+        while (Wire.available() > 0) { // check data on BUS
+            c = Wire.read();
+            Serial.print(c);
+        }
+        if (node.index == 2) {
+            if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
+                send_is_ready_node2 = true;
+            }
+        }else {
+            if (is_message_ready_message_node2(c)){
+                is_other_node_ready = true;
+            }
+        }
+        
+        // check if coupling gains are set
+    }else if (is_coupling_gains_set == false){
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
@@ -405,23 +423,6 @@ void receive_i2c_message(int how_many){
                 Serial.print("k_12 = ");
                 Serial.println(k_12);
                 is_coupling_gains_set = true;
-            }
-        }
-    }
-    // check if message is ready signal
-    else if (is_other_node_ready == false) {
-        char c;
-        while (Wire.available() > 0) { // check data on BUS
-            c = Wire.read();
-            Serial.print(c);
-        }
-        if (node.index == 2) {
-            if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
-                send_is_ready_node2 = true;
-            }
-        }else {
-            if (is_message_ready_message_node2(c)){
-                is_other_node_ready = true;
             }
         }
     }else { // else run normal code
@@ -489,6 +490,18 @@ double iterate(){
 
 void consens(){
     
+    double lux;
+    Serial.print("INITIALIZED");
+    while(true) {
+        if (_received_new_data == true){
+            _received_new_data = false;
+            lux = iterate();
+        }
+    }
+}
+
+void initailize_gains(int index){
+    
     // Initialize nodes
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
@@ -501,17 +514,6 @@ void consens(){
         }
     }
     
-    double lux;
-    Serial.print("INITIALIZED");
-    while(true) {
-        if (_received_new_data == true){
-            _received_new_data = false;
-            lux = iterate();
-        }
-    }
-}
-
-void initailize_gains(int index){
     if(index == 1){
         analogWrite(6, 255); // Light up node 1.
         Wire.beginTransmission(_i2c_slave_address);
