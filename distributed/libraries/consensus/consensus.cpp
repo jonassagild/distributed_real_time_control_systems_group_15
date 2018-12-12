@@ -308,6 +308,9 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     
     initailize_gains(_index);
     initialize_node(_index);
+    
+    Serial.println("Starting up in 3 2 1...");
+    delay(3000);
 }
 
 void initialize_node(int index){
@@ -474,15 +477,7 @@ double iterate(){
     // Update local lagrangians
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
-    /*
-    Serial.println("dim");
-    Serial.println(node.d[0]);
-    Serial.println(node.d[1]);
-    Serial.println("dim_neighbour");
-    Serial.println(node.dim_neighbour[0]);
-    Serial.println(node.dim_neighbour[1]);
-    Serial.println("dim_average");
-    */
+
     Serial.println(node.d_av[0]);
     Serial.println(node.d_av[1]);
     Serial.println(" ");
@@ -496,10 +491,10 @@ double iterate(){
 
 double consens(){
     // Initialize nodes
+    Serial.println("Check other node");
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
-            delay(1000);
         }else if (node.index == 2 && send_is_ready_node2 == true){
             is_other_node_ready = true;
             send_is_ready_i2c_message_node2();
@@ -520,8 +515,8 @@ double consens(){
         }
     }
     // set to default to next round?
-    is_other_node_ready = false;
-    send_is_ready_node2 = false;
+    //is_other_node_ready = false;
+    //send_is_ready_node2 = false;
     return lux;
 }
 
