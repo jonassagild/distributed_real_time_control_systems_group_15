@@ -506,7 +506,7 @@ double consens(){
         }
     }
     
-    Serial.print("Start Consensus");
+    Serial.println("Start Consensus");
     double lux;
     int iterations = 0;
     
@@ -565,10 +565,10 @@ void initailize_gains(int index){
         delay(2000); // Wait until read
         analogWrite(6, 0);
     }
-    
+    /*
     k_11 = 2;
     k_12 = 1;
     k_21 = 1;
     k_22 = 2;
-    
+    */
 }

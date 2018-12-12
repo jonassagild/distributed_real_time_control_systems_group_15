@@ -158,9 +158,7 @@ void Controller::control() {
         // Adjusts the PWM duty cycle
         analogWrite(_led_pin, _pwm_total_duty);
 
-		for (int j = 0; j < 5; j++) {
-			_end_lux_set_point = consens();
-		}
+        _end_lux_set_point = consens();
 		
 		_anread_set_point = (log10(_end_lux_set_point)*(-0.7757) + 0.6316) / (-0.0021);
     }
