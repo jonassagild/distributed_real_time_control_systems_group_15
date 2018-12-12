@@ -27,6 +27,7 @@ volatile bool is_coupling_gains_set = false;
 volatile bool node2_ready_to_set_gain = false;
 volatile bool node1_ready_to_set_gain = false;
 
+int iterations_in_consensus = 5;
 
 // Declare node
 Node node;
@@ -463,41 +464,46 @@ void receive_i2c_message(int how_many){
 }
 
 double iterate(){
-    // update averages
     
-    Res res;
-    res = primal_solve(node, rho);
-    node.d[0] = res.d_best0;
-    node.d[1] = res.d_best1;
-
-    node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
-    node.d_av[1] = (node.d[1]+node.dim_neighbour[1])/2;
-
-    // Update local lagrangians
-    node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
-    node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
-    /*
-    Serial.println("dim");
-    Serial.println(node.d[0]);
-    Serial.println(node.d[1]);
-    Serial.println("dim_neighbour");
-    Serial.println(node.dim_neighbour[0]);
-    Serial.println(node.dim_neighbour[1]);
-    Serial.println("dim_average");
-    */
-    Serial.println(node.d_av[0]);
-    Serial.println(node.d_av[1]);
-    Serial.println(" ");
+    Serial.print("Start Consensus");
     
-    
-    send_i2c_message(node.d[0], node.d[1]);
+    for (int i = 0; i < 5; i++) {
+        if (_received_new_data == true){
+            _received_new_data = false;
+            // update averages
+            Res res;
+            res = primal_solve(node, rho);
+            node.d[0] = res.d_best0;
+            node.d[1] = res.d_best1;
 
+            node.d_av[0] = (node.d[0]+node.dim_neighbour[0])/2;
+            node.d_av[1] = (node.d[1]+node.dim_neighbour[1])/2;
+
+            // Update local lagrangians
+            node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
+            node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
+            /*
+            Serial.println("dim");
+            Serial.println(node.d[0]);
+            Serial.println(node.d[1]);
+            Serial.println("dim_neighbour");
+            Serial.println(node.dim_neighbour[0]);
+            Serial.println(node.dim_neighbour[1]);
+            Serial.println("dim_average");
+            */
+            Serial.println(node.d_av[0]);
+            Serial.println(node.d_av[1]);
+            Serial.println(" ");
+            
+            send_i2c_message(node.d[0], node.d[1]);
+        }
+    }
     // Calculate lux to set by controller
 	double _end_lux_set_point = node.k[0]* node.d[0] + node.k[1] * node.d[1];
 	return _end_lux_set_point;
 }
 
-void consens(){
+double consens(){
     // Initialize nodes
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
@@ -508,16 +514,11 @@ void consens(){
             send_is_ready_i2c_message_node2();
         }
     }
-    double lux;
-    Serial.print("Start Consensus");
-    while(true) {
-        if (_received_new_data == true){
-            _received_new_data = false;
-            lux = iterate();
-            delay(500);
-        }
-    }
+
+    double lux = iterate();
+    return lux;
 }
+
 
 void initailize_gains(int index){
     // Initialize nodes

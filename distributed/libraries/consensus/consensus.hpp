@@ -67,7 +67,7 @@ double check_feasibility(Node node, double *d);
  */
 Res primal_solve(Node node, double rho);
 
-void consens();
+double consens();
 /*
  consens
  input
