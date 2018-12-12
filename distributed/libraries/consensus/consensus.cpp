@@ -310,7 +310,7 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     initialize_node(_index);
     
     //Serial.println("Starting up in 3 2 1...");
-    //delay(3000);
+    delay(3000);
 }
 
 void initialize_node(int index){
@@ -423,7 +423,7 @@ void receive_i2c_message(int how_many){
             }
         }
     }
-    /*
+    
     else if (is_other_node_ready == false) {
         char c;
         while (Wire.available() > 0) { // check data on BUS
@@ -440,7 +440,7 @@ void receive_i2c_message(int how_many){
             }
         }
     
-    }*/else { // else run normal code
+    }else { // else run normal code
         int i = 0;
         char _d_1[8];
         char _d_2[8];
@@ -493,7 +493,7 @@ double iterate(){
 
 double consens(){
     // Initialize nodes
-    /*
+    
     Serial.println("Check other node");
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
@@ -503,7 +503,7 @@ double consens(){
             send_is_ready_i2c_message_node2();
         }
     }
-    */
+    
     
     double lux;
     int iterations = 0;
