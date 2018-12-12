@@ -423,7 +423,7 @@ void receive_i2c_message(int how_many){
             }
         }
     }
-    
+    /*
     else if (is_other_node_ready == false) {
         char c;
         while (Wire.available() > 0) { // check data on BUS
@@ -440,7 +440,7 @@ void receive_i2c_message(int how_many){
             }
         }
     
-    }else { // else run normal code
+    }*/else { // else run normal code
         int i = 0;
         char _d_1[8];
         char _d_2[8];
