@@ -422,7 +422,9 @@ void receive_i2c_message(int how_many){
                 is_coupling_gains_set = true;
             }
         }
-    }else if (is_other_node_ready == false) {
+    }
+    /*
+    else if (is_other_node_ready == false) {
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
@@ -438,7 +440,7 @@ void receive_i2c_message(int how_many){
             }
         }
     
-    }else { // else run normal code
+    }*/else { // else run normal code
         int i = 0;
         char _d_1[8];
         char _d_2[8];
@@ -491,7 +493,7 @@ double iterate(){
 
 double consens(){
     // Initialize nodes
-    /*
+    
     Serial.println("Check other node");
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
@@ -501,7 +503,7 @@ double consens(){
             send_is_ready_i2c_message_node2();
         }
     }
-    */
+    
     
     Serial.println("Start Consensus");
     double lux;
