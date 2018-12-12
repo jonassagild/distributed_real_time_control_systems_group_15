@@ -30,7 +30,7 @@ void setup() {
   //Wire.onReceive(receiveEvent); //event handler
   //TWAR = (own_add << 1) | 1; // enable broadcasts to be received
 
-  //TEST
+  //TEST RASMUS
   initialize_system(2, 1, 1, 2, 150, 30, 1, 0.07, 25, 1);  
 }
 
