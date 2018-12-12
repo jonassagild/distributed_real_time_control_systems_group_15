@@ -406,18 +406,16 @@ void receive_i2c_message(int how_many){
         }
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
-                delay(1000);
+                delay(2000);
                 k_21 = analogRead(1);
                 Serial.print("k_21 = ");
                 Serial.println(k_21);
                 is_coupling_gains_set = true;
                 node1_ready_to_set_gain = true;
             }
-        Serial.println("HEI2");
         }else{
             if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
-                delay(1000);
-                Serial.println("HEI");
+                delay(2000);
                 k_12 = analogRead(1);
                 Serial.print("k_12 = ");
                 Serial.println(k_12);
@@ -508,7 +506,6 @@ void consens(){
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
-            delay(1000);
         }else if (node.index == 2 && send_is_ready_node2 == true){
             is_other_node_ready = true;
             send_is_ready_i2c_message_node2();
@@ -520,7 +517,7 @@ void consens(){
         if (_received_new_data == true){
             _received_new_data = false;
             lux = iterate();
-            delay(1000);
+            delay(2000);
         }
     }
 }
@@ -530,7 +527,6 @@ void initailize_gains(int index){
     while (is_other_node_ready_to_set_gain == false){ // wait until node1 is ready
         if (index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
-            delay(1000);
         }else if (index == 2 && send_is_ready_node2 == true){
             is_other_node_ready_to_set_gain = true;
             send_is_ready_i2c_message_node2();
@@ -542,11 +538,11 @@ void initailize_gains(int index){
         Wire.beginTransmission(_i2c_slave_address);
         Wire.write('X');
         Wire.endTransmission();
-        delay(1000); // Wait until light is stable
+        delay(2000); // Wait until light is stable
         k_11 = analogRead(1);
         Serial.print("k_11 = ");
         Serial.println(k_11);
-        delay(1000); // Wait until read
+        delay(2000); // Wait until read
         analogWrite(6, 0);
     }
     
@@ -559,11 +555,11 @@ void initailize_gains(int index){
         Wire.beginTransmission(_i2c_slave_address);
         Wire.write('Y');
         Wire.endTransmission();
-        delay(1000); // Wait until light is stable
+        delay(2000); // Wait until light is stable
         k_22 = analogRead(1);
         Serial.print("k_22 = ");
         Serial.println(k_22);
-        delay(1000); // Wait until read
+        delay(2000); // Wait until read
         analogWrite(6, 0);
     }
     
