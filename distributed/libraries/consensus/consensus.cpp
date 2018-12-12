@@ -496,6 +496,7 @@ double iterate(){
 
 double consens(){
     // Initialize nodes
+    /*
     while (is_other_node_ready == false){ // wait until node1 is ready
         if (node.index ==  1) {
             send_is_ready_i2c_message_node1(); // send ready message
@@ -505,7 +506,7 @@ double consens(){
             send_is_ready_i2c_message_node2();
         }
     }
-    
+    */
     Serial.println("Start Consensus");
     double lux;
     int iterations = 0;
@@ -565,10 +566,10 @@ void initailize_gains(int index){
         delay(2000); // Wait until read
         analogWrite(6, 0);
     }
-    /*
+    
     k_11 = 2;
     k_12 = 1;
     k_21 = 1;
     k_22 = 2;
-    */
+    
 }
