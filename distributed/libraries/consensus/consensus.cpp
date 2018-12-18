@@ -300,7 +300,9 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     rho = _rho;
     
     _i2c_master_address = i2c_base_address + _index;
-    _i2c_slave_address = i2c_base_address + (3 - _index);
+    _i2c_slave_address = 0;
+    //_i2c_slave_address = i2c_base_address + (3 - _index);
+    
     
     Wire.begin(_i2c_master_address);
     Wire.onReceive(receive_i2c_message); //event handler
@@ -334,7 +336,14 @@ void initialize_node(int index){
 
 void send_i2c_message(double d1, double d2){
     // send own locally optimized dimmings
+    
+    //TEST
+    // index, message type, message
+    //char _dim_message[2]  = {node.index, 'D'}
+    
+    
     Wire.beginTransmission(_i2c_slave_address);
+    //Wire.write(_dim_message, 2);
     dtostrf(d1, 3, 4, _chars);
     Wire.write(_chars, 8);
     Wire.write(';');
@@ -360,31 +369,38 @@ bool is_message_ready_message_node2(char message){
 }
 
 void send_is_ready_i2c_message_node1(){
-    //TODO mutex?
-
     Serial.print("NODE1 sending\n");
+    
+    //TEST
+    char _ready_message[3] = {'1', 'R', 'X'};
+    
     Wire.beginTransmission(_i2c_slave_address);
-    Wire.write('X');
-    Wire.endTransmission(); // Crash here!
+    Wire.write(_ready_message, 3);
+    Wire.endTransmission();
 
 }
 
 void send_is_ready_i2c_message_node2(){
     Serial.print("NODE2 sending\n");
+    
+    //TEST
+    // index, message type, message
+    char _ready_message[3] = {'2', 'R', 'Y'};
+    
     Wire.beginTransmission(_i2c_slave_address);
-    Wire.write('Y');
+    Wire.write(_ready_message, 3);
     Wire.endTransmission(); // Crash here!
 
 }
 
 void receive_i2c_message(int how_many){
-
     // check if message is ready  to set gains signal
     if (is_other_node_ready_to_set_gain == false) {
         char c;
+        int i = 0;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
-            Serial.println(c);
+            Serial.print(c);
         }
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
@@ -446,7 +462,15 @@ void receive_i2c_message(int how_many){
         char _d_2[8];
         bool _semicolon = false;
         while (Wire.available() > 0) { // check data on BUS
+            
             char c = Wire.read(); //receive byte at I2S BUS
+            // index and msg type
+            /*
+            if(i == 0 && (c == '1' || c == '2')){
+                i = i + 1;
+            }else if(i == 1 && c == 'G'){
+                i = 0;
+            }*/
             
             if (c == ';') {
                 _semicolon = true;
@@ -536,8 +560,14 @@ void initailize_gains(int index){
     
     if(index == 1){
         analogWrite(6, 255); // Light up node 1.
+        
+        
+        //TEST
+        // index, message type, message
+        char _ready_message[3] = {'1', 'G', 'X'};
+        
         Wire.beginTransmission(_i2c_slave_address);
-        Wire.write('X');
+        Wire.write(_ready_message, 3);
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
         double k_11_a = analogRead(1);
@@ -554,8 +584,13 @@ void initailize_gains(int index){
         }
         delay(3000);
         analogWrite(6, 255);
+        
+        //TEST
+        // index, message type, message
+        char _ready_message[3] = {'2', 'G', 'Y'};
+        
         Wire.beginTransmission(_i2c_slave_address);
-        Wire.write('Y');
+        Wire.write(_ready_message, 3);
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
         double k_22_a = analogRead(1);
