@@ -35,10 +35,8 @@ void setup() {
   pinMode(led_pin, OUTPUT); 
   
   Serial.begin(115200);
-  initialize_system(2, 1, 1, 2, end_lux, 0, 1, 0.07, 25, 1);  // MUST SET INDEX
-  // set timer frequency
-  // pin = 6, important!
-  set_timer_frequency(6, 1);
+  //initialize_system(end_lux, 0, 1, 0.07, 25, 1);  // MUST SET INDEX
+  set_timer_frequency(6, 1); // pin 6
   
 }
 
@@ -68,6 +66,6 @@ void start_controlling() {
   controller.set_iterations_between_measurement(10);
   controller.set_measure_anread(true);
   controller.set_measure_pwm(true);
-  //controller.enable_i2c(own_add, 0); // sets master to own_address, and slave to 0
-  controller.control(1); // MUST SET INDEX
+  controller.enable_i2c(own_add, 0); // sets master to own_address, and slave to 0
+  controller.control(); // MUST SET INDEX
 }

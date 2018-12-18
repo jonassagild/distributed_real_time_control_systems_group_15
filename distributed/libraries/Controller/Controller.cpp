@@ -9,7 +9,6 @@
 #include <Wire.h>
 #include "consensus.hpp"
 
-
 Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, int index){
     // set internal parameters
     _feedforward = feedforward;
@@ -19,34 +18,37 @@ Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, fl
     _k_i = k_i;
     _initial_lux_set_point = initial_lux_set_point;
     _end_lux_set_point = end_lux_set_point;
+    _index = index;
     
     // set initial value
     analogWrite(_led_pin, (_initial_lux_set_point-0.42)/0.1846); // initial value
     // wait for LDR (and LED) to stabilize
     delay(100000);
     
-    if (index == 1){
+    if (_index == 1){
         _anread_set_point = (-0.7880*log10(_end_lux_set_point) + 6.0989 - 5.1786 ) / (-0.0023);
     }else{
         _anread_set_point =  (-0.7534*log10(_end_lux_set_point) + 5.7523 - 5.0762 ) / (-0.0020);
     }
-    if (_anread_set_point < 0){
-        _anread_set_point = 0;
-    }
-    // calculate anread_set_point
-    //_anread_set_point = (log10(_end_lux_set_point)*(-0.5871)+5.099-4.965)/(-0.0018);
-    
+
     // set values for optimization
     _k_integral = _k_p*_k_i*_t*0.5;
 }
 
-void Controller::control(int index) {
+void Controller::control() {
+    
+    // variables for calculating comfort error
+    _comfort_error = 0;
+    double temp_comfort_error;
+    
+    // total time in seconds since restart
+    unsigned long total_time = millis()*1000;
+    
     _i = 0;
     while(true){
         _i = _i + 1;
         // get start time of iteration
         _start_time = millis();
-        
         
         // if it's time to measure data
         if (_i % _iterations_between_measurement == 0){
@@ -88,9 +90,6 @@ void Controller::control(int index) {
             }
         }
         
-        // gets measured lux
-        //_measured_anread = analogRead(_sensor_pin);
-        
         /* FEED-FORWARD CONTROLLER*/
         if (_feedforward) {
             _pwm_forward_duty = ((_end_lux_set_point-0.42)/0.1846); // move outside of loop
@@ -130,7 +129,9 @@ void Controller::control(int index) {
 
         // calculates total pwm
         _pwm_total_duty = _pwm_backward_duty + _pwm_forward_duty; // Total duty
-        //Serial.println(_pwm_total_duty);
+        //TEST
+        send_i2c_duty_cycle(_pwm_total_duty, _index);
+        
         // PWM overflow prevention.
         if (_pwm_total_duty > 255){
             _pwm_total_duty = 255;
@@ -164,23 +165,135 @@ void Controller::control(int index) {
         // Adjusts the PWM duty cycle
         analogWrite(_led_pin, _pwm_total_duty);
         
-        _end_lux_set_point = consens();
-        //Serial.println(_end_lux_set_point);
         
-        if (index == 1){
+        /* CONNECT CONSENSUS
+        _end_lux_set_point = consens();
+        
+        if (_index == 1){
             _anread_set_point =  (-0.7880*log10(_end_lux_set_point)  + 6.0989 - 5.1786) / (-0.0023); //
         }else{
             _anread_set_point =  (-0.7534*log10(_end_lux_set_point)  + 5.7523 - 5.0762) / (-0.0020); //
         }
-        
+         */
         // gets measured lux
-        _measured_anread = analogRead(_sensor_pin);
-        Serial.println(_measured_anread);
-        Serial.println(_anread_set_point);
         
+        _measured_anread = analogRead(_sensor_pin);
+        send_i2c_anread(_measured_anread, _index);
+        
+        // comfort error
+        //TODO Change to lux. Now in analog read values.
+        if(_anread_set_point > _measured_anread){
+            temp_comfort_error = temp_comfort_error + (_anread_set_point - _measured_anread);
+            _comfort_error = temp_comfort_error/_i;
+            //send_i2c_accumulated_comfort_error(_comfort_error, _index);
+        }
+        
+        send_i2c_elapsed_time(millis(), _index);
     }
 }
 
+void Controller::send_i2c_elapsed_time(unsigned long time, int index){
+    char temp[3];
+    dtostrf(time, 3, 0, temp);
+    
+    char message [5];
+    for (int i = 2; i < 5; i++) {
+        message[i] = temp[i-2];
+    }
+    
+    if(index == 1){
+        message[0] = '1';
+    }else{
+        message[0] = '2';
+    }
+    message[1] = 't';
+    
+    /*
+    for (int i = 0; i <5; i++) {
+        Serial.print(message[i]);
+    }
+    Serial.println("");
+   */
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write(message, 5);
+    Wire.endTransmission();
+    
+    
+}
+
+void Controller::send_i2c_duty_cycle(double duty_cycle, int index){
+    char temp[3];
+    dtostrf(duty_cycle, 3, 0, temp);
+    
+    char duty_cycle_message [5];
+    for (int i = 2; i < 5; i++) {
+        duty_cycle_message[i] = temp[i-2];
+        }
+    if(index == 1){
+        duty_cycle_message[0] = '1';
+    }else{
+        duty_cycle_message[0] = '2';
+    }
+    duty_cycle_message[1] = 'd';
+    
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write(duty_cycle_message, 5);
+    Wire.endTransmission();
+}
+
+void Controller::send_i2c_anread(double anread, int index){
+    char temp[3];
+    dtostrf(anread, 3, 0, temp);
+    
+    char message [5];
+    for (int i = 2; i < 5; i++) {
+        message[i] = temp[i-2];
+    }
+    if(index == 1){
+        message[0] = '1';
+    }else{
+        message[0] = '2';
+    }
+    message[1] = 'l';
+    
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write(message, 5);
+    Wire.endTransmission();
+    /*
+    for (int i = 0; i <5; i++) {
+        Serial.print(message[i]);
+    }
+    Serial.println(" ");
+     */
+}
+
+void Controller::send_i2c_accumulated_comfort_error(double comfort_error, int index){
+    char temp[3];
+    dtostrf(comfort_error, 3, 0, temp);
+    
+    char message [5];
+    for (int i = 2; i < 5; i++) {
+        message[i] = temp[i-2];
+    }
+    
+    if(index == 1){
+        message[0] = '1';
+    }else{
+        message[0] = '2';
+    }
+    message[1] = 'e';
+    
+    /*
+    for (int i = 0; i <5; i++) {
+        Serial.print(message[i]);
+    }
+    Serial.println(" ");
+    */
+    
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write(message, 5);
+    Wire.endTransmission();
+}
 
 void Controller::enable_i2c(int master_address, int slave_address){
     _i2c_master_address = master_address;
@@ -190,7 +303,6 @@ void Controller::enable_i2c(int master_address, int slave_address){
     Wire.onReceive(receive_i2c_message); //event handler
     TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
 }
-
 
 static void Controller::receive_i2c_message(int how_many){
     while (Wire.available()> 0) { // check data on BUS
@@ -202,21 +314,17 @@ static void Controller::receive_i2c_message(int how_many){
     }
 }
 
-
 void Controller::set_sampling_interval(int sampling_interval){
     _sampling_interval = sampling_interval;
 }
-
 
 void Controller::set_measure_anread(bool measure_anread){
     _measure_anread = measure_anread;
 }
 
-
 void Controller::set_measure_pwm(bool measure_pwm){
     _measure_pwm = measure_pwm;
 }
-
 
 void Controller::set_number_of_measure_points(int number_of_measure_points){
     _number_of_measure_points = number_of_measure_points;
@@ -227,11 +335,9 @@ void Controller::set_led_pin(int led_pin){
     _led_pin = led_pin;
 }
 
-
 void Controller::set_sensor_pin(int sensor_pin){
     _sensor_pin = sensor_pin;
 }
-
 
 void Controller::set_iterations_between_measurement(int iterations_between_measurement){
     _iterations_between_measurement = iterations_between_measurement;

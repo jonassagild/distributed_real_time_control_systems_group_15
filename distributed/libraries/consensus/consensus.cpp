@@ -286,7 +286,7 @@ Res primal_solve(Node node, double rho){
     return res;
 }
 
-void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_base_address, int _index){
+void initialize_system(double _l, double _o, double _c, double _rho, double i2c_base_address, int _index){
     // Coupling matrix (dim 2 by 2)
     node.index = _index;
     
@@ -299,10 +299,14 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     // Solve with consensus.
     rho = _rho;
     
+    
+    //TEST
+    //send_i2c_get_current_external_illuminance(o,node.index);
+    
+    
     _i2c_master_address = i2c_base_address + _index;
     _i2c_slave_address = 0;
     //_i2c_slave_address = i2c_base_address + (3 - _index);
-    
     
     Wire.begin(_i2c_master_address);
     Wire.onReceive(receive_i2c_message); //event handler
@@ -509,9 +513,6 @@ double iterate(){
     node.y[0] = node.y[0] + rho*(node.d[0]-node.d_av[0]);
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
 
-    //Serial.println(node.d_av[0]);
-    //Serial.println(node.d_av[1]);
-    //Serial.println(" ");
     send_i2c_message(node.d[0], node.d[1]);
 
     // Calculate lux to set by controller
@@ -603,3 +604,92 @@ void initailize_gains(int index){
     }
     
 }
+
+void send_i2c_current_occupancy_state(double l, int index){
+    
+    char occupancy_value;
+    if (l > 60){ //  DESK OCCUPIED. DECALRE VARIABLE WITH THRESHOLD
+        occupancy_value = '1';
+    }else{
+        occupancy_value = '0';
+    }
+    
+    char message [3];
+    
+    if(index == 1){
+        message[0] = '1';
+    }else{
+        message[0] = '2';
+    }
+    message[1] = 's';
+    message[2] = occupancy_value;
+    
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write(message, 5);
+    Wire.endTransmission();
+    
+     for (int i = 0; i <3; i++) {
+     Serial.print(message[i]);
+     }
+     Serial.println(" ");
+    
+}
+
+void send_i2c_current_illuminance_lower_bound(double lower_bound_illuminance, int index){
+    
+    char temp[3];
+    dtostrf(lower_bound_illuminance, 3, 0, temp);
+    
+    char message [5];
+    for (int i = 2; i < 5; i++) {
+        message[i] = temp[i-2];
+    }
+    
+    if(index == 1){
+        message[0] = '1';
+    }else{
+        message[0] = '2';
+    }
+    message[1] = 'L';
+    
+    /*
+    for (int i = 0; i <5; i++) {
+        Serial.print(message[i]);
+    }
+    */
+    
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write(message, 5);
+    Wire.endTransmission();
+}
+
+void send_i2c_get_current_external_illuminance(double external_illuminance, int index){
+    
+    char temp[3];
+    dtostrf(external_illuminance, 3, 0, temp);
+    
+    char message [5];
+    for (int i = 2; i < 5; i++) {
+        message[i] = temp[i-2];
+    }
+    
+    if(index == 1){
+        message[0] = '1';
+    }else{
+        message[0] = '2';
+    }
+    message[1] = 'L';
+    
+    
+     for (int i = 0; i <5; i++) {
+     Serial.print(message[i]);
+     }
+    
+    Wire.beginTransmission(_i2c_slave_address);
+    Wire.write(message, 5);
+    Wire.endTransmission();
+    
+}
+
+
+

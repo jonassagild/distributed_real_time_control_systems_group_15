@@ -41,7 +41,7 @@ struct Res {
  - int master_address: own address, needs to be unique
  - int slave_address: address to send data to
  */
-void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, double _l, double _o, double _c, double _rho, double i2c_base_address, int index);
+void initialize_system(double _l, double _o, double _c, double _rho, double i2c_base_address, int index);
 
 /*
  initialize_node
@@ -85,6 +85,11 @@ void send_i2c_message(double d1, double d2);
 void receive_i2c_message(int how_many);
 
 bool receive_is_ready_i2c_message();
+
+
+void send_i2c_current_occupancy_state(double l, int index);
+void send_i2c_current_illuminance_lower_bound(double lower_bound_illuminance, int index);
+void send_i2c_get_current_external_illuminance(double external_illuminance, int index);
 /* END help methods */
 
 /* TEST methods */

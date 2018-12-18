@@ -32,7 +32,7 @@ public:
      control
      Starts a loop that will control the LED. The control will quit after 300 iterations, or the value of number_of_measure_points * iterations_between_measurement.
      */
-    void control(int index);
+    void control();
     
     /*
      set_i2c
@@ -102,6 +102,10 @@ public:
      */
     void set_iterations_between_measurement(int iterations_between_measurement);
     
+    void send_i2c_duty_cycle(double duty_cycle, int index);
+    void send_i2c_anread(double anread, int index);
+    void send_i2c_accumulated_comfort_error(double comfort_error, int index);
+    void send_i2c_elapsed_time(unsigned long time, int index);
 private:
     /*
      _print_iteration_time_overflow_info
@@ -126,6 +130,8 @@ private:
     float _end_lux_set_point;
     
     // variables
+    double _comfort_error;
+    int _index;
     int _i = 0; // iteration number
     int _i2c_master_address; // master address
     int _i2c_slave_address; // slave address
@@ -160,5 +166,6 @@ private:
     
     
 };
+
 
 #endif /* Controller_hpp */
