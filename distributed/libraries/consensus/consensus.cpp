@@ -310,8 +310,6 @@ void initialize_system(double _k_11, double _k_12, double _k_21, double _k_22, d
     
     initailize_gains(_index);
     initialize_node(_index);
-    
-    //Serial.println("Starting up in 3 2 1...");
     delay(3000);
 }
 
@@ -338,9 +336,16 @@ void send_i2c_message(double d1, double d2){
     // send own locally optimized dimmings
     
     //TEST
-    // index, message type, message
-    //char _dim_message[2]  = {node.index, 'D'}
-    
+    /*
+    char _dim_message[2];
+    if (node.index == 1){
+        _dim_message[0] = '1';
+        _dim_message[1] = 'D';
+    }else{
+        _dim_message[0] = '2';
+        _dim_message[1] = 'D';
+    }
+    */
     
     Wire.beginTransmission(_i2c_slave_address);
     //Wire.write(_dim_message, 2);
@@ -540,9 +545,6 @@ double consens(){
             break;
         }
     }
-    // set to default to next round?
-    //is_other_node_ready = false;
-    //send_is_ready_node2 = false;
     return lux;
 }
 
@@ -599,10 +601,5 @@ void initailize_gains(int index){
         delay(1000); // Wait until read
         analogWrite(6, 0);
     }
-    
-    //k_11 = 2;
-    //k_12 = 1;
-    //k_21 = 1;
-    //k_22 = 2;
     
 }

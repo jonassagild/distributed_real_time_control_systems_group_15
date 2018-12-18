@@ -30,6 +30,9 @@ Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, fl
     }else{
         _anread_set_point =  (-0.7534*log10(_end_lux_set_point) + 5.7523 - 5.0762 ) / (-0.0020);
     }
+    if (_anread_set_point < 0){
+        _anread_set_point = 0;
+    }
     // calculate anread_set_point
     //_anread_set_point = (log10(_end_lux_set_point)*(-0.5871)+5.099-4.965)/(-0.0018);
     
@@ -86,7 +89,7 @@ void Controller::control(int index) {
         }
         
         // gets measured lux
-        _measured_anread = analogRead(_sensor_pin);
+        //_measured_anread = analogRead(_sensor_pin);
         
         /* FEED-FORWARD CONTROLLER*/
         if (_feedforward) {
@@ -160,19 +163,21 @@ void Controller::control(int index) {
         
         // Adjusts the PWM duty cycle
         analogWrite(_led_pin, _pwm_total_duty);
-
+        
         _end_lux_set_point = consens();
+        //Serial.println(_end_lux_set_point);
+        
         if (index == 1){
             _anread_set_point =  (-0.7880*log10(_end_lux_set_point)  + 6.0989 - 5.1786) / (-0.0023); //
         }else{
             _anread_set_point =  (-0.7534*log10(_end_lux_set_point)  + 5.7523 - 5.0762) / (-0.0020); //
         }
-        if (_anread_set_point < 0){
-            _anread_set_point = 0;
-        }
         
-        Serial.println(pow(10, (-0.0023*analogRead(1) + 5.1786 - 6.0989) / (-0.7880))); // 
-		//Serial.println(_anread_set_point);
+        // gets measured lux
+        _measured_anread = analogRead(_sensor_pin);
+        Serial.println(_measured_anread);
+        Serial.println(_anread_set_point);
+        
     }
 }
 
