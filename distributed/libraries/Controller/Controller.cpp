@@ -163,9 +163,9 @@ void Controller::control(int index) {
 
         _end_lux_set_point = consens();
         if (index == 1){
-            _anread_set_point =  (-0.7880*log10(_end_lux_set_point) + 6.0989 - 5.1786 ) / (-0.0023);
+            _anread_set_point =  (-0.7880*log10(_end_lux_set_point)  ) / (-0.0023); //+ 6.0989 - 5.1786
         }else{
-            _anread_set_point =  (-0.7534*log10(_end_lux_set_point) + 5.7523 - 5.0762 ) / (-0.0020);
+            _anread_set_point =  (-0.7534*log10(_end_lux_set_point)  ) / (-0.0020); //+ 5.7523 - 5.0762
         }
         Serial.println(pow(10, (-0.0023*analogRead(1) + 5.1786 - 6.0989) / (-0.7880)));
 		//Serial.println(_anread_set_point);

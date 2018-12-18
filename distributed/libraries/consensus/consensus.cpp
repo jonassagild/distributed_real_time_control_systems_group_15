@@ -274,11 +274,11 @@ Res primal_solve(Node node, double rho){
     
     res.cost_best = cost_best;
     
-    if(res.d_best0 < 0){
-        res.d_best0 = 0;
+    if( d_best[0] < 0){
+         d_best[0] = 0;
     }
-    if(res.d_best1 < 0){
-        res.d_best1 = 0;
+    if(d_best[1] < 0){
+        d_best[1] = 0;
     }
     
     res.d_best0 = d_best[0];
@@ -422,7 +422,7 @@ void receive_i2c_message(int how_many){
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
                 delay(1000);
                 double k_21_a = analogRead(1);
-				k_21 = pow(10, (-0.0020*k_21_a + 5.0762 - 5.7523) / (-0.7534)) / 100;
+				k_21 = pow(10, (-0.0020*k_21_a ) / (-0.7534)) / 100; // + 5.0762 - 5.7523
                 Serial.print("k_21 = ");
                 Serial.println(k_21);
                 is_coupling_gains_set = true;
@@ -432,7 +432,7 @@ void receive_i2c_message(int how_many){
             if (is_message_ready_message_node2(c)) { // Check if message from node 1 is ready message
                 delay(1000);
                 double k_12_a = analogRead(1);
-				k_12= pow(10, (-0.0023*k_12_a + 5.1786 - 6.0989) / (-0.7880))/100;
+				k_12= pow(10, (-0.0023*k_12_a ) / (-0.7880))/100; //+ 5.1786 - 6.0989
                 Serial.print("k_12 = ");
                 Serial.println(k_12);
                 is_coupling_gains_set = true;
@@ -561,7 +561,6 @@ void initailize_gains(int index){
     if(index == 1){
         analogWrite(6, 255); // Light up node 1.
         
-        
         //TEST
         // index, message type, message
         char _ready_message[3] = {'1', 'G', 'X'};
@@ -571,7 +570,7 @@ void initailize_gains(int index){
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
         double k_11_a = analogRead(1);
-		k_11 = pow(10, (-0.0023*k_11_a + 5.1786 - 6.0989) / (-0.7880))/100;
+		k_11 = pow(10, (-0.0023*k_11_a ) / (-0.7880)) / 100; // + 5.1786 - 6.0989
         Serial.print("k_11 = ");
         Serial.println(k_11);
         delay(1000); // Wait until read
@@ -594,7 +593,7 @@ void initailize_gains(int index){
         Wire.endTransmission();
         delay(1000); // Wait until light is stable
         double k_22_a = analogRead(1);
-		k_22 = pow(10, (-0.0020*k_22_a + 5.0762 - 5.7523) / (-0.7534)) / 100;
+		k_22 = pow(10, (-0.0020*k_22_a ) / (-0.7534)) / 100; //+ 5.0762 - 5.7523
         Serial.print("k_22 = ");
         Serial.println(k_22);
         delay(1000); // Wait until read
