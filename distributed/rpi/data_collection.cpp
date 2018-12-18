@@ -28,10 +28,9 @@ int DataCollector::read_values () {
 		xfer.txCnt = 0;
 		status = bscXfer(&xfer);
 		if(xfer.rxCnt != 0) {
-			printf("%.*s", xfer.rxCnt, xfer.rxBuf);
+//			printf("%.*s", xfer.rxCnt, xfer.rxBuf);
 			this->handle_message(xfer.rxBuf, xfer.rxCnt);	
 			
-		printf("\n");
 		}
 
 	}
@@ -42,14 +41,78 @@ int DataCollector::read_values () {
 
 void DataCollector::handle_message(char msgBuff[], int sz){
 	// processes the messages received on the i2c
-
 	// TODO: save the data based on what is received
-	if(sz > 0) {
-		_db->mux_illuminance_1.lock();
-		_db->illuminance_1 = _db->illuminance_1 + 1;
-		_db->mux_illuminance_1.unlock();	
+
+	// TODO: make switch that checks what is beeing sent, and then saves the values to the database
+	
+	switch(msgBuff[1]) {
+		case 'D':
+			if (msgBuff[0] == '1') {
+				// TODO: save the next values to database
+				std::string streng(msgBuff, sz);
+				_db->mux_dim_1.lock();
+				_db->dim_1 = streng.substr(2,sizeof(msgBuff));
+				_db->mux_dim_1.unlock();
+			} else if (msgBuff[0] == '2') {
+				std::string streng(msgBuff, sz);
+				_db->mux_dim_2.lock();
+				_db->dim_2 = streng.substr(2,sizeof(msgBuff));
+				_db->mux_dim_2.unlock();
+			}
+			break;
+		case 'l':
+			if (msgBuff[0] == '1') {
+				std::string streng(msgBuff, sz);
+				_db->mux_illuminance_1.lock();
+				_db->illuminance_1 = std::stoi(streng.substr(2,sizeof(msgBuff)));
+				_db->mux_illuminance_1.unlock();
+			} else if (msgBuff[0] == '2') {
+				std::string streng(msgBuff, sz);
+				_db->mux_illuminance_2.lock();
+				_db->illuminance_2 = std::stoi(streng.substr(2, sizeof(msgBuff)));
+				_db->mux_illuminance_2.unlock();	
+			}
+			break;
+		case 'L':
+			if (msgBuff[0] == '1') {
+				std::string streng(msgBuff, sz);
+				_db->mux_low_bound_1.lock();
+				_db->low_bound_1 = streng.substr(2, sizeof(msgBuff));
+				_db->mux_low_bound_1.unlock();
+			} else if (msgBuff[0] == '2') {
+				std::string streng(msgBuff, sz);
+				_db->mux_low_bound_2.lock();
+				_db->low_bound_2 = streng.substr(2, sizeof(msgBuff));
+				_db->mux_low_bound_2.unlock();
+			}
+			break;
+		case 'd':
+			if (msgBuff[0] == '1') {
+				std::string streng(msgBuff, sz);
+				_db->mux_pwm_1.lock();
+				_db->pwm_1 = streng.substr(2, sizeof(msgBuff));
+				_db->mux_pwm_1.unlock();
+			} else if (msgBuff[0] == '2') {
+				std::string streng(msgBuff, sz);
+				_db->mux_pwm_2.lock();
+				_db->pwm_2 = streng.substr(2, sizeof(msgBuff));
+				_db->mux_pwm_2.unlock();
+			}
+			break;
+	}	
+	
+	
+	if (msgBuff[0] == '1') {
+
+	} else if (msgBuff[0] == '2') {
+
 	}
 
+	if(sz > 0) {
+		_db->mux_illuminance_2.lock();
+		_db->illuminance_2 = _db->illuminance_2 + 1;
+		_db->mux_illuminance_2.unlock();	
+	}
 }
 
 

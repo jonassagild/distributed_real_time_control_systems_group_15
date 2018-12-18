@@ -32,6 +32,8 @@ class session{
 
 	void write_data(std::size_t sz, char *message);
 
+	void add_string_to_data(std::string streng);
+
 public:
     session(io_service& io, std::shared_ptr <Database> db);
 
