@@ -56,7 +56,7 @@ void Controller::control() {
         // if it's time to measure data
         if (_i % _iterations_between_measurement == 0){
             // if i2c
-            if (_i2c_enabled) {
+            if (false) {
                 
                 // buffer which stores what to print
                 char buffer[13] = {};
@@ -91,6 +91,7 @@ void Controller::control() {
                 Wire.write(buffer, 13);
                 Wire.endTransmission();
             }
+            
         }
         
         /* FEED-FORWARD CONTROLLER*/
@@ -132,8 +133,7 @@ void Controller::control() {
 
         // calculates total pwm
         _pwm_total_duty = _pwm_backward_duty + _pwm_forward_duty; // Total duty
-        //TEST
-        //send_i2c_duty_cycle(_pwm_total_duty, _index);
+        send_i2c_duty_cycle(_pwm_total_duty, _index); // TESTING
         
         // PWM overflow prevention.
         if (_pwm_total_duty > 255){
@@ -178,7 +178,7 @@ void Controller::control() {
         
         // gets measured lux
         _measured_anread = analogRead(_sensor_pin);
-        //send_i2c_anread(_measured_anread, _index);
+        //send_i2c_anread(_measured_anread, _index); // TESTING
         
         // comfort error
         //TODO Change to lux. Now in analog read values.
@@ -188,10 +188,11 @@ void Controller::control() {
             //send_i2c_accumulated_comfort_error(_comfort_error, _index);
         }
         
-        //send_i2c_elapsed_time(millis(), _index);
+        send_i2c_elapsed_time(millis(), _index);
         
     }
 }
+
 
 void Controller::send_i2c_elapsed_time(unsigned long time, int index){
     char temp[3];
@@ -209,12 +210,12 @@ void Controller::send_i2c_elapsed_time(unsigned long time, int index){
     }
     message[1] = 't';
     
-    /*
+    
     for (int i = 0; i <5; i++) {
         Serial.print(message[i]);
     }
     Serial.println("");
-   */
+   
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write(message, 5);
     Wire.endTransmission();
@@ -222,6 +223,8 @@ void Controller::send_i2c_elapsed_time(unsigned long time, int index){
     
 }
 
+
+//OK
 void Controller::send_i2c_duty_cycle(double duty_cycle, int index){
     char temp[3];
     dtostrf(duty_cycle, 3, 0, temp);
@@ -242,6 +245,8 @@ void Controller::send_i2c_duty_cycle(double duty_cycle, int index){
     Wire.endTransmission();
 }
 
+
+//OK
 void Controller::send_i2c_anread(double anread, int index){
     char temp[3];
     dtostrf(anread, 3, 0, temp);
@@ -260,12 +265,12 @@ void Controller::send_i2c_anread(double anread, int index){
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write(message, 5);
     Wire.endTransmission();
-    /*
+    
     for (int i = 0; i <5; i++) {
         Serial.print(message[i]);
     }
     Serial.println(" ");
-     */
+    
 }
 
 void Controller::send_i2c_accumulated_comfort_error(double comfort_error, int index){
@@ -658,9 +663,9 @@ void initialize_system(double _l, double _o, double _c, double _rho, double i2c_
     TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
     
     // RPI SEND VALUES
-    //send_i2c_get_current_external_illuminance(_o, _index);
-    //send_i2c_current_occupancy_state(_l, _index);
-    //send_i2c_current_illuminance_lower_bound(_l, _index);
+    send_i2c_get_current_external_illuminance(_o, _index);
+    send_i2c_current_occupancy_state(_l, _index);
+    send_i2c_current_illuminance_lower_bound(_l, _index);
     
     
     initailize_gains(_index);
@@ -879,12 +884,13 @@ double consens(){
     int iterations = 0;
     
     while(true) {
+        if (iterations == 10){
+            break;
+        }
         if (_received_new_data == true){
             _received_new_data = false;
             iterations++;
             lux = iterate();
-        }else if (iterations == 10){
-            break;
         }
     }
     return lux;
