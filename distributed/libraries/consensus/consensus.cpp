@@ -306,7 +306,7 @@ void initialize_system(double _l, double _o, double _c, double _rho, double i2c_
     Wire.onReceive(receive_i2c_message); //event handler
     TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
     
-    //TEST
+    // RPI SEND VALUES
     //send_i2c_get_current_external_illuminance(_o, _index);
     //send_i2c_current_occupancy_state(_l, _index);
     //send_i2c_current_illuminance_lower_bound(_l, _index);

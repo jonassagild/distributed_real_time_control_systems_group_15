@@ -1,4 +1,3 @@
-#include "consensus.hpp"
 #include "Controller.hpp"
 #include "Utilities.hpp"
 #include <Wire.h>
