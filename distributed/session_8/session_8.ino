@@ -38,18 +38,12 @@ void setup() {
   
   Serial.begin(115200);
 
-  if(index == 1){
-     initialize_system(end_lux, 0, 1, 0.07, 25, index);  // MUST SET INDEX
-  }else if(index == 2){
-    //initialize_system(end_lux, 0, 1, 0.07, 25, 2);  // MUST SET INDEX
-  }
-  
+  initialize_system(end_lux, 0, 1, 0.07, 25, index);  // MUST SET INDEX
   set_timer_frequency(6, 1); // pin 6
   
 }
 
 void loop() {
-  
   start_controlling();
 }
 
@@ -67,27 +61,15 @@ void receiveEvent (int howMany) {
 void start_controlling() {
   // starts the controller
   // (bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, node index)
-
-  if (index == 1){
-    Controller controller(true, true, 1.5, 0, 0.001, 500, -500, start_lux, end_lux, 1); // index of node is the last one // MUST SET INDEX
-    controller.set_sensor_pin(1);
-  controller.set_led_pin(6);
-  controller.set_sampling_interval(300);
-  controller.set_iterations_between_measurement(10);
-  controller.set_measure_anread(true);
-  controller.set_measure_pwm(true);
-  controller.enable_i2c(own_add, 0); // sets master to own_address, and slave to 0
-  controller.control(); // MUST SET INDEX
-  }else{
-    Controller controller(true, true, 0.3, 0, 0.003, 100, -50, start_lux, end_lux, 2); // index of node is the last one // MUST SET INDEX
+   
+  Controller controller(true, true, 1.5, 0, 0.001, 500, -500, start_lux, end_lux, 1); // index of node is the last one // MUST SET INDEX
   controller.set_sensor_pin(1);
   controller.set_led_pin(6);
   controller.set_sampling_interval(300);
   controller.set_iterations_between_measurement(10);
   controller.set_measure_anread(true);
   controller.set_measure_pwm(true);
-  controller.enable_i2c(own_add, 0); // sets master to own_address, and slave to 0
+  //controller.enable_i2c(26, 0); // sets master to own_address, and slave to 0
   controller.control(); // MUST SET INDEX
-  }
 
 }

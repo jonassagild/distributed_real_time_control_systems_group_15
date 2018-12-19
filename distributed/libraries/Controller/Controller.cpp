@@ -134,7 +134,7 @@ void Controller::control() {
         // calculates total pwm
         _pwm_total_duty = _pwm_backward_duty + _pwm_forward_duty; // Total duty
         //TEST
-        send_i2c_duty_cycle(_pwm_total_duty, _index);
+        //send_i2c_duty_cycle(_pwm_total_duty, _index);
         
         // PWM overflow prevention.
         if (_pwm_total_duty > 255){
@@ -169,8 +169,6 @@ void Controller::control() {
         // Adjusts the PWM duty cycle
         analogWrite(_led_pin, _pwm_total_duty);
         
-        
-        /* CONNECT CONSENSUS
         _end_lux_set_point = consens();
         
         if (_index == 1){
@@ -178,11 +176,10 @@ void Controller::control() {
         }else{
             _anread_set_point =  (-0.7534*log10(_end_lux_set_point)  + 5.7523 - 5.0762) / (-0.0020); //
         }
-         */
-        // gets measured lux
         
+        // gets measured lux
         _measured_anread = analogRead(_sensor_pin);
-        send_i2c_anread(_measured_anread, _index);
+        //send_i2c_anread(_measured_anread, _index);
         
         // comfort error
         //TODO Change to lux. Now in analog read values.
@@ -192,7 +189,8 @@ void Controller::control() {
             //send_i2c_accumulated_comfort_error(_comfort_error, _index);
         }
         
-        send_i2c_elapsed_time(millis(), _index);
+        //send_i2c_elapsed_time(millis(), _index);
+        
     }
 }
 
@@ -303,18 +301,18 @@ void Controller::enable_i2c(int master_address, int slave_address){
     _i2c_master_address = master_address;
     _i2c_slave_address = slave_address;
     _i2c_enabled = true;
-    Wire.begin(_i2c_master_address);
-    Wire.onReceive(receive_i2c_message); //event handler
-    TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
+    //Wire.begin(_i2c_master_address);
+    //Wire.onReceive(receive_i2c_message); //event handler
+    //TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
 }
 
 static void Controller::receive_i2c_message(int how_many){
     while (Wire.available()> 0) { // check data on BUS
         char c = Wire.read(); //receive byte at I2C BUS
-        Serial.println("the program shut down");
-        if (c == 's'){
-            exit(0);
-        }
+        //Serial.println("the program shut down");
+        //if (c == 's'){
+        //    exit(0);
+        //}
     }
 }
 
@@ -333,7 +331,6 @@ void Controller::set_measure_pwm(bool measure_pwm){
 void Controller::set_number_of_measure_points(int number_of_measure_points){
     _number_of_measure_points = number_of_measure_points;
 }
-
 
 void Controller::set_led_pin(int led_pin){
     _led_pin = led_pin;

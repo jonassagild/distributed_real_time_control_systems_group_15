@@ -27,7 +27,6 @@ volatile bool is_coupling_gains_set = false;
 volatile bool node2_ready_to_set_gain = false;
 volatile bool node1_ready_to_set_gain = false;
 
-
 // Declare node
 Node node;
 
@@ -309,10 +308,8 @@ void initialize_system(double _l, double _o, double _c, double _rho, double i2c_
     
     //TEST
     //send_i2c_get_current_external_illuminance(_o, _index);
-    delay(100);
-    send_i2c_current_occupancy_state(_l, _index);
-    delay(100);
-    send_i2c_current_illuminance_lower_bound(_l, _index);
+    //send_i2c_current_occupancy_state(_l, _index);
+    //send_i2c_current_illuminance_lower_bound(_l, _index);
     
     
     initailize_gains(_index);
@@ -342,26 +339,15 @@ void initialize_node(int index){
 void send_i2c_message(double d1, double d2){
     // send own locally optimized dimmings
     
-    //TEST
-    /*
-    char _dim_message[2];
-    if (node.index == 1){
-        _dim_message[0] = '1';
-        _dim_message[1] = 'D';
-    }else{
-        _dim_message[0] = '2';
-        _dim_message[1] = 'D';
-    }
-    */
-    
     Wire.beginTransmission(_i2c_slave_address);
-    //Wire.write(_dim_message, 2);
     dtostrf(d1, 3, 4, _chars);
     Wire.write(_chars, 8);
     Wire.write(';');
     dtostrf(d2, 3, 4, _chars);
     Wire.write(_chars, 8);
     Wire.endTransmission();
+    
+    
 }
 
 bool is_message_ready_message_node1(char message){
@@ -468,13 +454,14 @@ void receive_i2c_message(int how_many){
             }
         }
     
-    }*/else { // else run normal code
+    }*/
+    else { // else run normal code
+        
         int i = 0;
         char _d_1[8];
         char _d_2[8];
         bool _semicolon = false;
         while (Wire.available() > 0) { // check data on BUS
-            
             char c = Wire.read(); //receive byte at I2S BUS
             // index and msg type
             /*
@@ -517,7 +504,7 @@ double iterate(){
     node.y[1] = node.y[1] + rho*(node.d[1]-node.d_av[1]);
 
     send_i2c_message(node.d[0], node.d[1]);
-
+    
     // Calculate lux to set by controller
     double _end_lux_set_point = node.k[0]* node.d[0] + node.k[1] * node.d[1];
 	//Serial.println(_end_lux_set_point);
