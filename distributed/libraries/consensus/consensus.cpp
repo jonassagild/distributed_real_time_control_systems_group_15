@@ -298,12 +298,7 @@ void initialize_system(double _l, double _o, double _c, double _rho, double i2c_
     c = _c;
     // Solve with consensus.
     rho = _rho;
-    
-    
-    //TEST
-    //send_i2c_get_current_external_illuminance(o,node.index);
-    
-    
+
     _i2c_master_address = i2c_base_address + _index;
     _i2c_slave_address = 0;
     //_i2c_slave_address = i2c_base_address + (3 - _index);
@@ -311,6 +306,14 @@ void initialize_system(double _l, double _o, double _c, double _rho, double i2c_
     Wire.begin(_i2c_master_address);
     Wire.onReceive(receive_i2c_message); //event handler
     TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
+    
+    //TEST
+    //send_i2c_get_current_external_illuminance(_o, _index);
+    delay(100);
+    send_i2c_current_occupancy_state(_l, _index);
+    delay(100);
+    send_i2c_current_illuminance_lower_bound(_l, _index);
+    
     
     initailize_gains(_index);
     initialize_node(_index);
@@ -624,15 +627,15 @@ void send_i2c_current_occupancy_state(double l, int index){
     message[1] = 's';
     message[2] = occupancy_value;
     
+    
     Wire.beginTransmission(_i2c_slave_address);
-    Wire.write(message, 5);
+    Wire.write(message, 3);
     Wire.endTransmission();
     
      for (int i = 0; i <3; i++) {
      Serial.print(message[i]);
      }
-     Serial.println(" ");
-    
+    Serial.println("");
 }
 
 void send_i2c_current_illuminance_lower_bound(double lower_bound_illuminance, int index){
@@ -652,15 +655,14 @@ void send_i2c_current_illuminance_lower_bound(double lower_bound_illuminance, in
     }
     message[1] = 'L';
     
-    /*
-    for (int i = 0; i <5; i++) {
-        Serial.print(message[i]);
-    }
-    */
-    
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write(message, 5);
     Wire.endTransmission();
+    
+    for (int i = 0; i <5; i++) {
+        Serial.print(message[i]);
+    }
+    Serial.println("");
 }
 
 void send_i2c_get_current_external_illuminance(double external_illuminance, int index){
@@ -678,16 +680,16 @@ void send_i2c_get_current_external_illuminance(double external_illuminance, int 
     }else{
         message[0] = '2';
     }
-    message[1] = 'L';
-    
-    
-     for (int i = 0; i <5; i++) {
-     Serial.print(message[i]);
-     }
+    message[1] = 'o';
     
     Wire.beginTransmission(_i2c_slave_address);
     Wire.write(message, 5);
     Wire.endTransmission();
+    
+    for (int i = 0; i <5; i++) {
+        Serial.print(message[i]);
+    }
+    Serial.println("");
     
 }
 

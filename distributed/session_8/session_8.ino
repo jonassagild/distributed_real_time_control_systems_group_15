@@ -10,7 +10,11 @@ const int other_add = 0; //other dev address
 int own_add = 24;
 char char_read;
 
-// end and start lux
+
+// SET NODE INDEX HERE
+int index = 1;
+
+// DESIRED ILLUMINANCE AT DESK i
 float end_lux = 40;
 float start_lux = 5;
 
@@ -27,15 +31,19 @@ float start_lux = 5;
   ki = 0.003
   imax = 100
   imin = -50
-  
-  
 */
 void setup() {
   // enable output on the led pin
   pinMode(led_pin, OUTPUT); 
   
   Serial.begin(115200);
-  //initialize_system(end_lux, 0, 1, 0.07, 25, 1);  // MUST SET INDEX
+
+  if(index == 1){
+     initialize_system(end_lux, 0, 1, 0.07, 25, index);  // MUST SET INDEX
+  }else if(index == 2){
+    //initialize_system(end_lux, 0, 1, 0.07, 25, 2);  // MUST SET INDEX
+  }
+  
   set_timer_frequency(6, 1); // pin 6
   
 }
@@ -58,8 +66,20 @@ void receiveEvent (int howMany) {
 
 void start_controlling() {
   // starts the controller
-  // (bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, number_of_measure_points)
-  Controller controller(true, true, 1.5, 0, 0.001, start_lux, end_lux, 1); // index of node is the last one // MUST SET INDEX
+  // (bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, node index)
+
+  if (index == 1){
+    Controller controller(true, true, 1.5, 0, 0.001, 500, -500, start_lux, end_lux, 1); // index of node is the last one // MUST SET INDEX
+    controller.set_sensor_pin(1);
+  controller.set_led_pin(6);
+  controller.set_sampling_interval(300);
+  controller.set_iterations_between_measurement(10);
+  controller.set_measure_anread(true);
+  controller.set_measure_pwm(true);
+  controller.enable_i2c(own_add, 0); // sets master to own_address, and slave to 0
+  controller.control(); // MUST SET INDEX
+  }else{
+    Controller controller(true, true, 0.3, 0, 0.003, 100, -50, start_lux, end_lux, 2); // index of node is the last one // MUST SET INDEX
   controller.set_sensor_pin(1);
   controller.set_led_pin(6);
   controller.set_sampling_interval(300);
@@ -68,4 +88,6 @@ void start_controlling() {
   controller.set_measure_pwm(true);
   controller.enable_i2c(own_add, 0); // sets master to own_address, and slave to 0
   controller.control(); // MUST SET INDEX
+  }
+
 }

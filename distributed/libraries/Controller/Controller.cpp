@@ -9,13 +9,17 @@
 #include <Wire.h>
 #include "consensus.hpp"
 
-Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, int index){
+Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, float k_i, float i_max, float i_min ,float initial_lux_set_point, float end_lux_set_point, int index){
     // set internal parameters
     _feedforward = feedforward;
     _feedback = feedback;
     _k_p = k_p;
     _k_d = k_d;
     _k_i = k_i;
+    _i_max = i_max;
+    _i_min = i_min;
+    
+    
     _initial_lux_set_point = initial_lux_set_point;
     _end_lux_set_point = end_lux_set_point;
     _index = index;
