@@ -24,7 +24,15 @@ Controller::Controller(bool feedforward, bool feedback, float k_p, float k_d, fl
     _index = index;
     
     // set initial value
-    analogWrite(_led_pin, (_initial_lux_set_point-0.42)/0.1846); // initial value
+    
+    
+    if(_index == 2) {
+        double initial_pwm_forward_duty = ((initial_lux_set_point-2.7257)/0.3014);
+        analogWrite(_led_pin, initial_pwm_forward_duty); // initial value
+    } else {
+        double initial_pwm_forward_duty = ((initial_lux_set_point-12.32)/0.1701);
+        analogWrite(_led_pin, initial_pwm_forward_duty); // initial value
+    }
     // wait for LDR (and LED) to stabilize
     delay(100000);
     
@@ -44,17 +52,27 @@ void Controller::control() {
     _comfort_error = 0;
     double temp_comfort_error;
     
+    //varialbe for calculating the energy consumption
+    _energy_consumption = 0;
+    double power = 0.25;
+    
     // total time in seconds since restart
     unsigned long total_time = millis()*1000;
     
     _i = 0;
-    while(true){
+    while(_i < _iterations_between_measurement*_number_of_measure_points - 1){
         _i = _i + 1;
         // get start time of iteration
         _start_time = millis();
         
         // if it's time to measure data
         if (_i % _iterations_between_measurement == 0){
+            //if plotting of values
+            if(_measure_anread){
+                _lux_values[_i/_iterations_between_measurement-1] = _measured_anread;
+            }
+            
+            /***
             // if i2c
             if (false) {
                 
@@ -91,12 +109,18 @@ void Controller::control() {
                 Wire.write(buffer, 13);
                 Wire.endTransmission();
             }
+            ***/
             
         }
         
         /* FEED-FORWARD CONTROLLER*/
         if (_feedforward) {
-            _pwm_forward_duty = ((_end_lux_set_point-0.42)/0.1846); // move outside of loop
+            if(_index == 2) {
+                // change formulas to be dependent on _anread_set_point
+                _pwm_forward_duty = ((_end_lux_set_point-2.7257)/0.3014);
+            } else {
+                _pwm_forward_duty = ((_end_lux_set_point-12.32)/0.1701);
+            }
         } else {
             _pwm_forward_duty = 0;
         }
@@ -133,7 +157,9 @@ void Controller::control() {
 
         // calculates total pwm
         _pwm_total_duty = _pwm_backward_duty + _pwm_forward_duty; // Total duty
-        send_i2c_duty_cycle(_pwm_total_duty, _index); // TESTING
+        
+        _energy_consumption = _energy_consumption + power*(_pwm_total_duty/255)*0.04;
+        Serial.println(_energy_consumption);
         
         // PWM overflow prevention.
         if (_pwm_total_duty > 255){
@@ -167,7 +193,7 @@ void Controller::control() {
         
         // Adjusts the PWM duty cycle
         analogWrite(_led_pin, _pwm_total_duty);
-        
+        /*** CONSENSUS
         _end_lux_set_point = consens();
         
         if (_index == 1){
@@ -175,10 +201,11 @@ void Controller::control() {
         }else{
             _anread_set_point =  (-0.7534*log10(_end_lux_set_point)  + 5.7523 - 5.0762) / (-0.0020); //
         }
-        
+        ***/
         // gets measured lux
         _measured_anread = analogRead(_sensor_pin);
         //send_i2c_anread(_measured_anread, _index); // TESTING
+        
         
         // comfort error
         //TODO Change to lux. Now in analog read values.
@@ -188,9 +215,10 @@ void Controller::control() {
             //send_i2c_accumulated_comfort_error(_comfort_error, _index);
         }
         
-        send_i2c_elapsed_time(millis(), _index);
+        //send_i2c_elapsed_time(millis(), _index);
         
     }
+    
 }
 
 
@@ -326,6 +354,22 @@ void Controller::set_sampling_interval(int sampling_interval){
 
 void Controller::set_measure_anread(bool measure_anread){
     _measure_anread = measure_anread;
+}
+
+void Controller::print_matlab_code(){
+    Serial.print("function lux_values = values\n");
+    delay(100);
+    Serial.print("anread_values = [");
+    delay(1000);
+    Serial.print(_lux_values[0]);
+    for (int k = 1; k < _number_of_measure_points; k++) {
+        Serial.print(",");
+        Serial.print(_lux_values[k]);
+        delay(1000);
+    }
+    Serial.print("];");
+    //Serial.print("\nlux_values = 10.^((((-0.0020).*anread_values)-0.6761)/(-0.7534));");
+    //Serial.print("\nend");
 }
 
 void Controller::set_measure_pwm(bool measure_pwm){

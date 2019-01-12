@@ -73,6 +73,14 @@ public:
     
     
     /*
+     set_measure_actuation
+     input
+     - bool measure_actuation: true if you want to measure actuation, false if not
+     */
+    void Controller::print_matlab_code();
+    
+    
+    /*
      set_measure_pwm
      input
      - bool measure_pwm: true if you want to measure pwm, false if not
@@ -136,6 +144,7 @@ private:
     
     // variables
     double _comfort_error;
+    double _energy_consumption;
     int _index;
     int _i = 0; // iteration number
     int _i2c_master_address; // master address
@@ -164,6 +173,7 @@ private:
     unsigned long _end_time;
     unsigned long _delay_time;
     unsigned long _iteration_time;
+    double _lux_values[300];   // list to save values for plotting
     
     // optimization
     float _k_integral = 0;
