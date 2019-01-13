@@ -50,13 +50,13 @@ void Controller::control() {
     
     // variables for calculating comfort error
     _comfort_error = 0;
-    double temp_comfort_error;
+    double temp_comfort_error = 0;
     
     // total time in seconds since restart
     unsigned long total_time = millis()*1000;
     
     _i = 0;
-    while(_i < _iterations_between_measurement*_number_of_measure_points-1){
+    while(true){
         _i = _i + 1;
         // get start time of iteration
         _start_time = millis();
@@ -69,46 +69,6 @@ void Controller::control() {
                     _lux_values[_i/_iterations_between_measurement-1] = _comfort_error;
                 }
             }
-            
-            /***
-            // if i2c
-            if (false) {
-                
-                // buffer which stores what to print
-                char buffer[13] = {};
-                // stores the address of the master
-                dtostrf(_i2c_master_address, 3, 0, _chars);
-                buffer[0] = _chars[0];
-                buffer[1] = _chars[1];
-                buffer[2] = _chars[2];
-                buffer[3] = ',';
-
-                if (_measure_anread) {
-                    // converts float to string dtostrf(floatVar, minStringWidthIncDecimalPoint, numVarsAfterDecimal, empty array)
-                    dtostrf(_measured_anread_old, 3, 2, _chars);
-                    buffer[4] = _chars[0];
-                    buffer[5] = _chars[1];
-                    buffer[6] = _chars[2];
-                    buffer[7] = _chars[3];
-                    buffer[8] = _chars[4];
-                    buffer[9] = _chars[5];
-                }
-
-                if(_measure_pwm) {
-                    // coverts in to string
-                    dtostrf(_pwm_total_old, 3, 0, _chars);
-                    buffer[10] = ',';
-                    buffer[11] = _chars[0];
-                    buffer[12] = _chars[1];
-                    buffer[13] = _chars[2];
-                }
-
-                Wire.beginTransmission(_i2c_slave_address);
-                Wire.write(buffer, 13);
-                Wire.endTransmission();
-            }
-            ***/
-            
         }
         
         /* FEED-FORWARD CONTROLLER*/
@@ -123,6 +83,7 @@ void Controller::control() {
             _pwm_forward_duty = 0;
         }
         
+        /* FEED-BACK CONTROLLER*/
         if (_feedback) {
             // calculates error
             _err_value = _anread_set_point - _measured_anread;
@@ -169,9 +130,40 @@ void Controller::control() {
         // Holds the old lux value
         _measured_anread_old = _measured_anread;
         
+        // Adjusts the PWM duty cycle
+        analogWrite(_led_pin, _pwm_total_duty);
+
+        //_end_lux_set_point = consens();
+        
+        if (_index == 1){
+            _anread_set_point =  (-0.7880*log10(_end_lux_set_point)  + 6.0989 - 5.1786) / (-0.0023);
+        }else{
+            _anread_set_point =  (-0.7534*log10(_end_lux_set_point)  + 5.7523 - 5.0762) / (-0.0020);
+        }
+        
+        // gets measured lux
+        _measured_anread = analogRead(_sensor_pin);
+        //send_i2c_anread(_measured_anread, _index);
+        
+        
+        // COMFORT ERROR
+        /*
+        if(_anread_set_point > _measured_anread){
+            temp_comfort_error = temp_comfort_error + (_anread_set_point - _measured_anread);
+            _comfort_error = temp_comfort_error/_i;
+            //send_i2c_accumulated_comfort_error(_comfort_error, _index);
+        }
+        */
+        //Serial.print(_comfort_error);
+        //Serial.print(",");
+        
+        //send_i2c_elapsed_time(millis(), _index);
+        
+        /**  CLOCK  **/
         // waits until the iteration have used _sampling_interval_time
         _end_time = millis();
         _iteration_time = _end_time - _start_time;
+        //Serial.println(_iteration_time);
         
         // calculate time to wait
         _delay_time = _sampling_interval - _iteration_time;
@@ -184,33 +176,9 @@ void Controller::control() {
         }
         
         // waits until we've used _sampling_interval_time on this iteration
+        if(_delay_time > 0){
         delay(_delay_time);
-        
-        // Adjusts the PWM duty cycle
-        analogWrite(_led_pin, _pwm_total_duty);
-        /*** CONSENSUS
-        _end_lux_set_point = consens();
-        
-        if (_index == 1){
-            _anread_set_point =  (-0.7880*log10(_end_lux_set_point)  + 6.0989 - 5.1786) / (-0.0023); //
-        }else{
-            _anread_set_point =  (-0.7534*log10(_end_lux_set_point)  + 5.7523 - 5.0762) / (-0.0020); //
         }
-        ***/
-        // gets measured lux
-        _measured_anread = analogRead(_sensor_pin);
-        //send_i2c_anread(_measured_anread, _index); // TESTING
-        
-        
-        // comfort error
-        //TODO Change to lux. Now in analog read values.
-        if(_anread_set_point > _measured_anread){
-            temp_comfort_error = temp_comfort_error + (_anread_set_point - _measured_anread);
-            _comfort_error = temp_comfort_error/_i;
-            //send_i2c_accumulated_comfort_error(_comfort_error, _index);
-        }
-        
-        //send_i2c_elapsed_time(millis(), _index);
         
     }
     
@@ -702,9 +670,9 @@ void initialize_system(double _l, double _o, double _c, double _rho, double i2c_
     TWAR = (_i2c_master_address << 1) | 1; // enable broadcasts to be received
     
     // RPI SEND VALUES
-    send_i2c_get_current_external_illuminance(_o, _index);
-    send_i2c_current_occupancy_state(_l, _index);
-    send_i2c_current_illuminance_lower_bound(_l, _index);
+    //send_i2c_get_current_external_illuminance(_o, _index);
+    //send_i2c_current_occupancy_state(_l, _index);
+    //send_i2c_current_illuminance_lower_bound(_l, _index);
     
     
     initailize_gains(_index);
@@ -741,7 +709,6 @@ void send_i2c_message(double d1, double d2){
     dtostrf(d2, 3, 4, _chars);
     Wire.write(_chars, 8);
     Wire.endTransmission();
-    
     
 }
 
@@ -810,6 +777,7 @@ void receive_i2c_message(int how_many){
         char c;
         while (Wire.available() > 0) { // check data on BUS
             c = Wire.read();
+            Serial.print(c);
         }
         if (node.index == 2) {
             if (is_message_ready_message_node1(c)) { // Check if message from node 1 is ready message
@@ -881,6 +849,7 @@ void receive_i2c_message(int how_many){
         // add data from _d_1 and _d_2 to node.
         node.dim_neighbour[0] = atof(_d_1);
         node.dim_neighbour[1] = atof(_d_2);
+        Serial.println("Recived new data");
         _received_new_data = true;
     }
 }
@@ -923,7 +892,7 @@ double consens(){
     int iterations = 0;
     
     while(true) {
-        if (iterations == 10){
+        if (iterations == 5){
             break;
         }
         if (_received_new_data == true){
