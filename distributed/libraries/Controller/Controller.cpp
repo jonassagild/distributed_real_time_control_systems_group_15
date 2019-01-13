@@ -65,7 +65,9 @@ void Controller::control() {
         if (_i % _iterations_between_measurement == 0){
             //if plotting of values
             if(_measure_anread){
-                _lux_values[_i/_iterations_between_measurement-1] = _measured_anread;
+                if (_i < _iterations_between_measurement*_number_of_measure_points) {
+                    _lux_values[_i/_iterations_between_measurement-1] = _measured_anread;
+                }
             }
             
             /***
