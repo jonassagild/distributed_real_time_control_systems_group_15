@@ -56,7 +56,7 @@ void Controller::control() {
     unsigned long total_time = millis()*1000;
     
     _i = 0;
-    while(true){
+    while(_i < _iterations_between_measurement*_number_of_measure_points-1){
         _i = _i + 1;
         // get start time of iteration
         _start_time = millis();
@@ -66,7 +66,7 @@ void Controller::control() {
             //if plotting of values
             if(_measure_anread){
                 if (_i < _iterations_between_measurement*_number_of_measure_points) {
-                    _lux_values[_i/_iterations_between_measurement-1] = _comfort_error;
+                    _lux_values[_i/_iterations_between_measurement-1] = _pwm_total_duty;
                 }
             }
         }

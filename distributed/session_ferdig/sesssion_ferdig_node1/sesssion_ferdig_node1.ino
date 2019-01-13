@@ -15,7 +15,7 @@ char char_read;
 
 
 // SET NODE INDEX HERE
-int index = 1;
+int index = 2;
 
 // DESIRED ILLUMINANCE AT DESK i
 float end_lux = 45;
@@ -28,7 +28,7 @@ void setup() {
   
   Serial.begin(115200);
 
-  initialize_system(end_lux, 0, 1, 0.07, 25, index);  // MUST SET INDEX
+  //initialize_system(end_lux, 0, 1, 0.07, 25, index);  // MUST SET INDEX
   set_timer_frequency(6, 1); // pin 6
   
 }
@@ -36,8 +36,8 @@ void setup() {
 void loop() {
 
 
-  start_controlling();
-  /*
+  //start_controlling();
+  
   char c;
   
   if (Serial.available() > 0) {
@@ -46,7 +46,7 @@ void loop() {
       start_controlling();
       }
   }
-  */
+  
 }
 
 void start_controlling() {
@@ -54,10 +54,10 @@ void start_controlling() {
   // (bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, node index)
   int number_measurements = 250;
    
-  Controller controller(true, true, 1.5, 0, 0.001, 500, -500, start_lux, end_lux, index); // index of node is the last one // MUST SET INDEX
+  Controller controller(true, true, 0.3, 0, 0.003, 400, -50, start_lux, end_lux, index); // index of node is the last one // MUST SET INDEX
   controller.set_sensor_pin(1);
   controller.set_led_pin(6);
-  controller.set_sampling_interval(100);
+  controller.set_sampling_interval(80);
   controller.set_iterations_between_measurement(10);
   controller.set_number_of_measure_points(number_measurements);
   controller.set_measure_anread(true);
