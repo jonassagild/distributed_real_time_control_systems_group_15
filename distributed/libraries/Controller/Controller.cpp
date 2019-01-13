@@ -52,15 +52,11 @@ void Controller::control() {
     _comfort_error = 0;
     double temp_comfort_error;
     
-    //varialbe for calculating the energy consumption
-    _energy_consumption = 0;
-    double power = 0.25;
-    
     // total time in seconds since restart
     unsigned long total_time = millis()*1000;
     
     _i = 0;
-    while(_i < _iterations_between_measurement*_number_of_measure_points - 1){
+    while(true){
         _i = _i + 1;
         // get start time of iteration
         _start_time = millis();
@@ -157,10 +153,7 @@ void Controller::control() {
 
         // calculates total pwm
         _pwm_total_duty = _pwm_backward_duty + _pwm_forward_duty; // Total duty
-        
-        _energy_consumption = _energy_consumption + power*(_pwm_total_duty/255)*0.04;
-        Serial.println(_energy_consumption);
-        
+        //send_i2c_duty_cycle(_pwm_total_duty, _index); // TESTING
         // PWM overflow prevention.
         if (_pwm_total_duty > 255){
             _pwm_total_duty = 255;
@@ -206,7 +199,7 @@ void Controller::control() {
         _measured_anread = analogRead(_sensor_pin);
         //send_i2c_anread(_measured_anread, _index); // TESTING
         
-        
+        /***
         // comfort error
         //TODO Change to lux. Now in analog read values.
         if(_anread_set_point > _measured_anread){
@@ -215,8 +208,8 @@ void Controller::control() {
             //send_i2c_accumulated_comfort_error(_comfort_error, _index);
         }
         
-        //send_i2c_elapsed_time(millis(), _index);
-        
+        send_i2c_elapsed_time(millis(), _index);
+        ***/
     }
     
 }

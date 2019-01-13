@@ -28,35 +28,36 @@ void setup() {
   
   Serial.begin(115200);
 
-  initialize_system(end_lux, 0, 1, 0.07, 25, index);  // MUST SET INDEX
+  //initialize_system(end_lux, 0, 1, 0.07, 25, index);  // MUST SET INDEX
   set_timer_frequency(6, 1); // pin 6
   
 }
 
 void loop() {
 
-  start_controlling();
-/*
+  
+
   char c;
   
   if (Serial.available() > 0) {
     c = Serial.read();
     if (c == 's') {
+      start_controlling();
       }
   }
-  */
+  
   
 }
 
 void start_controlling() {
   // starts the controller
   // (bool feedforward, bool feedback, float k_p, float k_d, float k_i, float initial_lux_set_point, float end_lux_set_point, node index)
-  int number_measurements = 250;
+  int number_measurements = 50;
    
   Controller controller(true, true, 0.3, 0, 0.003, 400, -50, start_lux, end_lux, index); // index of node is the last one // MUST SET INDEX
   controller.set_sensor_pin(1);
   controller.set_led_pin(6);
-  controller.set_sampling_interval(80);
+  controller.set_sampling_interval(1000);
   controller.set_iterations_between_measurement(1);
   controller.set_number_of_measure_points(number_measurements);
   controller.set_measure_anread(true);
